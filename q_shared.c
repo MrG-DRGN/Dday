@@ -304,12 +304,12 @@ float	anglemod(float a)
 int		i;
 vec3_t	corners[2];
 
-
 // this is the slow, general version
 int BoxOnPlaneSide2(vec3_t emins, vec3_t emaxs, struct cplane_s* p)
 {
-	int		i;
+
 	float	dist1, dist2;
+	int		sides;
 	
 
 	for (i = 0; i < 3; i++)
