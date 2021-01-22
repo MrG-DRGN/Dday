@@ -2085,7 +2085,7 @@ void VIP_think(edict_t* self);
 void Set_VIP_Defense_Bot(edict_t* ent);
 int Surface2(char* name);
 void Find_Mission_Start_Point(edict_t* ent, vec3_t origin, vec3_t angles);
-void SP_objective_flag(edict_t* self);
+void SP_objective_flag(edict_t* ent);
 void briefcase_warn(edict_t* ent);//faf;  ctb code
 qboolean Pickup_Briefcase(edict_t* ent, edict_t* other);
 void Drop_Briefcase(edict_t* ent, gitem_t* item);
