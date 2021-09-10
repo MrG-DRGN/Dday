@@ -1,4 +1,4 @@
-/*       D-Day: Normandy by Vipersoft
+﻿/*       D-Day: Normandy by Vipersoft
  ************************************
  *   $Source: /usr/local/cvsroot/dday/src/g_cmds.c,v $
  *   $Revision: 1.62 $
@@ -28,11 +28,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "g_local.h"
 #include "m_player.h"
 #include "g_cmds.h"
-#include "stddef.h"
+/* MetalGod included in q_shared.h
+#include "stddef.h" */
 //#include "p_classes.h"
 
 void EndObserverMode(edict_t* ent);
-void Show_Mos(edict_t* ent);
+/* void Show_Mos(edict_t* ent);  MetalGod unused empty function	*/
 qboolean Cmd_Scope_f(edict_t* ent);
 void ClientUserinfoChanged(edict_t* ent, char* userinfo);
 void SwitchToObserver(edict_t* ent);
@@ -306,16 +307,16 @@ void Cmd_Spot(edict_t* ent)
 	}
 }
 
-void Cmd_RemoveDoors(edict_t* end)//for help with adding bot support
+void Cmd_RemoveDoors(edict_t* ent)//for help with adding bot support /* MetalGod typo(edict_t* end) corrected to ent */
 {
 	edict_t* check;
-	
+
 
 	check = g_edicts + 1;
 	if (sv_cheats->value != 0)
 	{
 		int e;/* MetalGod moved to reduce variable scope */
-		
+
 		for (e = 1; e < globals.num_edicts; e++, check++)
 		{
 			if (!check->inuse)
@@ -528,7 +529,7 @@ qboolean Cmd_Scope_f(edict_t* ent)
 	}
 
 	//faf:  turret stuff
-	if (ent->client->pers.weapon && ent->client->pers.weapon->classnameb == WEAPON_FISTS
+	if (/* ent->client->pers.weapon && */ent->client->pers.weapon->classnameb == WEAPON_FISTS /* MetalGod removed redundant check */
 		&& !ent->client->aim)
 	{
 		if (ent->client->turret)
@@ -561,7 +562,7 @@ qboolean Cmd_Scope_f(edict_t* ent)
 	}
 
 	//faf
-	if (ent->client->pers.weapon &&
+	if (/* ent->client->pers.weapon && MetalGod removed redundant check */
 		(ent->client->pers.weapon->classnameb == WEAPON_MAUSER98K ||
 			ent->client->pers.weapon->classnameb == WEAPON_ARISAKA ||
 			ent->client->pers.weapon->classnameb == WEAPON_CARCANO ||
@@ -571,7 +572,7 @@ qboolean Cmd_Scope_f(edict_t* ent)
 		return false;
 
 	// do not let a sniper reload bolt if there is no ammo
-	if (ent->client->pers.weapon &&
+	if (/* ent->client->pers.weapon && MetalGod removed redundant check */
 		ent->client->pers.weapon->position == LOC_SNIPER &&
 		ent->client->p_rnd &&
 		*ent->client->p_rnd == 0)
@@ -786,7 +787,7 @@ void Cmd_Give_f(edict_t* ent)
 	int			index;
 	int			i;
 	qboolean	give_all;
-	
+
 
 	if (deathmatch->value && !sv_cheats->value)
 	{
@@ -898,7 +899,7 @@ void Cmd_Give_f(edict_t* ent)
 	{
 		/* MetalGod moved to reduce variable scope */
 		edict_t* it_ent;
-		
+
 		it_ent = G_Spawn();
 		it_ent->classname = it->classname;
 		SpawnItem(it_ent, it);
@@ -1183,14 +1184,14 @@ void Cmd_Use_f(edict_t* ent)
 		}
 		else if (Q_stricmp(s, "weapon1") == 0)
 		{
-			if ((it = FindItem(ent->client->resp.team_on->mos[ent->client->resp.mos]->weapon1)) != NULL) /* MetalGod != NULL*/
+			if ((it = FindItem(ent->client->resp.team_on->mos[ent->client->resp.mos]->weapon1)))
 				strcpy(s, ent->client->resp.team_on->mos[ent->client->resp.mos]->weapon1);
 			else
 				it = ent->client->pers.weapon;
 		}
 		else if (Q_stricmp(s, "weapon2") == 0)
 		{
-			if ((it = FindItem(ent->client->resp.team_on->mos[ent->client->resp.mos]->weapon2)) != NULL) /* MetalGod != NULL*/
+			if ((it = FindItem(ent->client->resp.team_on->mos[ent->client->resp.mos]->weapon2)))
 				strcpy(s, ent->client->resp.team_on->mos[ent->client->resp.mos]->weapon2);
 			else
 				it = ent->client->pers.weapon;
@@ -1206,7 +1207,7 @@ void Cmd_Use_f(edict_t* ent)
 		*/
 		else if (Q_stricmp(s, "special") == 0)
 		{
-			if ((it = FindItem(ent->client->resp.team_on->mos[ent->client->resp.mos]->special)) != NULL) /* MetalGod != NULL*/
+			if ((it = FindItem(ent->client->resp.team_on->mos[ent->client->resp.mos]->special))) 
 				strcpy(s, ent->client->resp.team_on->mos[ent->client->resp.mos]->special);
 			else
 				it = ent->client->pers.weapon;
@@ -1959,10 +1960,14 @@ void Cmd_Players_f(edict_t* ent)
 			game.clients[index[i]].pers.netname);
 		if (strlen(small) + strlen(large) > sizeof(large) - 100)
 		{	// can't print all of them in one packet
-			strcat(large, "...\n");
+			/* MetalGod Let's use a destination size checking function
+			strcat(large, "...\n");	*/
+			Q_strncatz(large, sizeof(large), "...\n");
 			break;
 		}
-		strcat(large, small);
+		/* MetalGod NOPE! Let's use a destination size checking function
+		strcat(large, small);	   */
+		Q_strncatz(large, sizeof(large), small);
 	}
 
 	safe_cprintf(ent, PRINT_HIGH, "%s\n%i players\n", large, count);
@@ -2060,20 +2065,31 @@ void GetNearbyTeammates(edict_t* self, char* buf)
 		{
 			if (nearby_teammates_num == 2)
 			{
+
+				/* MetalGod Let's use a destination size checking function
 				strcat(buf, " and ");
-				strcat(buf, nearby_teammates[l]);
+				strcat(buf, nearby_teammates[l]); */
+				Q_strncatz(buf, sizeof(buf), " and ");
+				Q_strncatz(buf, sizeof(buf), nearby_teammates[1]);
+
 			}
 			else
 			{
 				if (l == (nearby_teammates_num - 1))
 				{
-					strcat(buf, ", and ");
-					strcat(buf, nearby_teammates[l]);
+					/* MetalGod Let's use a destination size checking function
+				strcat(buf, " and ");
+				strcat(buf, nearby_teammates[l]); */
+					Q_strncatz(buf, sizeof(buf), ", and ");
+					Q_strncatz(buf, sizeof(buf), nearby_teammates[1]);
 				}
 				else
 				{
-					strcat(buf, ", ");
-					strcat(buf, nearby_teammates[l]);
+					/* MetalGod Let's use a destination size checking function
+					strcat(buf, " and ");
+					strcat(buf, nearby_teammates[l]); */
+					Q_strncatz(buf, sizeof(buf), ", ");
+					Q_strncatz(buf, sizeof(buf), nearby_teammates[1]);;
 				}
 			}
 		}
@@ -2097,8 +2113,7 @@ void GetNearestMedic(edict_t* self, char* buf)
 			continue;
 		if (!OnSameTeam(e, self))
 			continue;
-		if (e->client->resp.mos &&
-			!(e->client->resp.mos == MEDIC))
+		if (e->client->resp.mos && (e->client->resp.mos != MEDIC)) /* MetalGod simplified */
 			continue;
 		if (e == self)
 			continue;
@@ -2253,10 +2268,10 @@ char* SeekBufEnd(char* buf)
 		buf++;
 	return buf;
 }
-   static char buf[0x8000], infobuf[0x8000]; /* MetalGod no need to be unsigned / moved here/to heap*/
+static char buf[0x8000], infobuf[0x8000]; /* MetalGod no need to be unsigned / moved here/to heap*/
 void ParseSayText(edict_t* ent, char* text)
 {
-	
+
 	char* p, * pbuf;
 
 	p = text;
@@ -2366,8 +2381,10 @@ void Cmd_Say_f(edict_t* ent, qboolean team, qboolean arg0, qboolean saved)
 			p++;
 			p[strlen(p) - 1] = 0;
 		}
-		strcat(text, p);
 
+		/* MetalGod Let's use a destination size checking function
+		strcat(text, p);*/
+		Q_strncatz(text, sizeof(text), p);
 		//Wheaty: Avoid the 'null spamming'...
 		if (!team) {
 			if (2 == strlen(text) - strlen(ent->client->pers.netname)) {
@@ -2388,8 +2405,9 @@ void Cmd_Say_f(edict_t* ent, qboolean team, qboolean arg0, qboolean saved)
 		if (ent->solid != SOLID_NOT && ent->deadflag != DEAD_DEAD)
 			ParseSayText(ent, text + offset_of_text);  //FB 5/31/99 - offset change
 							// this will parse the % variables,
-
-		strcat(text, "\n");
+		/* MetalGod Let's use a destination size checking function
+		strcat(text, "\n");*/
+		Q_strncatz(text, sizeof(text), "\n");
 
 		if (flood_msgs->value) {
 			cl = ent->client;
@@ -2536,7 +2554,7 @@ return;
 
 	else if (stance == STANCE_CRAWL)	//if we're supposed to crawl
 	{
-		if (!stricmp(level.mapname, "soviet1")) //lolhack
+		if (!Q_stricmp(level.mapname, "soviet1")) //lolhack
 			self->stance_view = -16;
 		else
 			self->stance_view = -17;//faf -14;	//10
@@ -2951,17 +2969,18 @@ qboolean Cmd_Reload(edict_t* ent)
 			(mags_left == 1)
 			/*(ent->client->pers.inventory[ent->client->ammo_index] < rds_left)*/)
 		{
-			/* eh don't even need this			if (ent->client->pers.weapon->position == LOC_RIFLE)
-							safe_cprintf(ent, PRINT_HIGH, "Last Clip!\n");
-						else if (ent->client->pers.weapon->position == LOC_ROCKET)
-							safe_cprintf(ent, PRINT_HIGH, "Last Rocket!\n");
-						else if (ent->client->pers.weapon->position == LOC_PISTOL)
-							safe_cprintf(ent, PRINT_HIGH, "Last Clip!\n");
-						else if (ent->client->pers.weapon->position == LOC_FLAME) //Wheaty: Flamethrower
-							safe_cprintf(ent, PRINT_HIGH, "Last Fuel Tank!\n");
-						else
-							safe_cprintf(ent, PRINT_HIGH, "Last Magazine!\n");
-			*/
+			/* eh don't even need this	.. MetalGod No, we don't need it, but it's helpful */
+			if (ent->client->pers.weapon->position == LOC_RIFLE)
+				safe_cprintf(ent, PRINT_HIGH, "Last Clip!\n");
+			else if (ent->client->pers.weapon->position == LOC_ROCKET)
+				safe_cprintf(ent, PRINT_HIGH, "Last Rocket!\n");
+			else if (ent->client->pers.weapon->position == LOC_PISTOL)
+				safe_cprintf(ent, PRINT_HIGH, "Last Clip!\n");
+			else if (ent->client->pers.weapon->position == LOC_FLAME) //Wheaty: Flamethrower
+				safe_cprintf(ent, PRINT_HIGH, "Low Fuel Tank!\n");
+			else
+				safe_cprintf(ent, PRINT_HIGH, "Last Magazine!\n");
+			/* MetalGod */
 
 			ent->client->weaponstate = WEAPON_RELOADING;
 			//bcass start - truesite speed after reload
@@ -3143,10 +3162,14 @@ void Cmd_Shout_f(edict_t* ent)
 	for (i = 0; filename[i]; i++)
 		filename[i] = tolower(filename[i]);
 
+	/* MetalGod Let's use a destination size checking function
 	strcat(filename, ".wav\0");
-
 	strcpy(soundfile, va("%s/shout/", ent->client->resp.team_on->teamid));
-	strcat(soundfile, filename);
+	strcat(soundfile, filename);  */
+
+	Q_strncatz(filename, sizeof(filename), ".wav\0");
+	Q_strncatz(soundfile, sizeof(soundfile), va("%s/shout/", ent->client->resp.team_on->teamid));
+	Q_strncatz(soundfile, sizeof(soundfile), filename);
 
 	if (newshout)
 	{
@@ -3230,7 +3253,9 @@ void Cmd_MOTD(edict_t* ent)
 			{
 				// add each new line to motd, to create a BIG message string.
 				// we are using strcat: STRing conCATenation function here.
-				strcat(motd, line);
+				/* MetalGod NOPE! Let's use a destination size checking function
+				strcat(motd, line); */
+				Q_strncatz(motd, sizeof(motd), line);
 			}
 
 			// print our message.

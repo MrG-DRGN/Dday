@@ -1,4 +1,4 @@
-/*       D-Day: Normandy by Vipersoft
+﻿/*       D-Day: Normandy by Vipersoft
  ************************************
  *   $Source: /usr/local/cvsroot/dday/src/g_main.c,v $
  *   $Revision: 1.15 $
@@ -259,7 +259,9 @@ void Sys_Error(char* error, ...)
 	char		text[1024];
 
 	va_start(argptr, error);
-	vsprintf(text, error, argptr);
+	/* MetalGod  Buffersafe vsnprintf
+	vsprintf(text, error, argptr);	*/
+	Q_vsnprintf(text, sizeof text, error, argptr);
 	va_end(argptr);
 
 	gi.error(ERR_FATAL, "%s", text);
@@ -271,7 +273,9 @@ void Com_Printf(char* msg, ...)
 	char		text[1024];
 
 	va_start(argptr, msg);
-	vsprintf(text, msg, argptr);
+	/* MetalGod  Buffersafe vnsprintf
+	vsprintf(text, msg, argptr);	*/
+	vsnprintf(text, sizeof text, msg, argptr);
 	va_end(argptr);
 
 	gi.dprintf("%s", text);
@@ -325,9 +329,13 @@ qboolean MapExists(char* map)
 	FILE* check;
 	char filename[256];
 
-	strcpy(filename, GAMEVERSION "/maps/");
+	/* MetalGod destination size checking functions
+	strcpy(filename, "dday/maps/");
 	strcat(filename, map);
-	strcat(filename, ".bsp");
+	strcat(filename, ".bsp");	  */
+	Q_strncpyz(filename, sizeof(filename), "dday/maps/");
+	Q_strncatz(filename, sizeof(filename), map);
+	Q_strncatz(filename, sizeof(filename), ".bsp");
 
 	if ((check = fopen(filename, "r")) != NULL) /* MetalGod != NULL*/
 	{
@@ -335,18 +343,27 @@ qboolean MapExists(char* map)
 		return true;
 	}
 
+	/* MetalGod destination size checking functions
 	strcpy(filename, "baseq2/maps/");
 	strcat(filename, map);
-	strcat(filename, ".bsp");
+	strcat(filename, ".bsp");		*/
+	Q_strncpyz(filename, sizeof(filename), "baseq2/maps/");
+	Q_strncatz(filename, sizeof(filename), map);
+	Q_strncatz(filename, sizeof(filename), ".bsp");
+
 	if ((check = fopen(filename, "r")) != NULL) /* MetalGod != NULL*/
 	{
 		fclose(check);
 		return true;
 	}
 
-	strcpy(filename, GAMEVERSION "/maps/");
+	/* MetalGod destination size checking functions
+	strcpy(filename, "dday/maps/");
 	strcat(filename, map);
-	strcat(filename, ".bsp.override");
+	strcat(filename, ".bsp.override");		*/
+	Q_strncpyz(filename, sizeof(filename), "dday/maps/");
+	Q_strncatz(filename, sizeof(filename), map);
+	Q_strncatz(filename, sizeof(filename), ".bsp.override");
 
 	if ((check = fopen(filename, "r")) != NULL) /* MetalGod != NULL*/
 	{
@@ -395,7 +412,7 @@ void Read_Last_Maps()
 				last_maps_played[i] = s;
 				s = strtok(NULL, "\n");
 			}
-		}			
+		}
 	}
 }
 
@@ -411,8 +428,8 @@ char* Get_Next_MaplistTxt_Map()
 	int x;
 	int randnum;
 	int removed;
-	char* possible_maps[300] = {0};;
-	char* maplisttxt[300] = {0};;
+	char* possible_maps[300] = { 0 };/* MetalGod there was an extra ; here */
+	char* maplisttxt[300] = { 0 };/* MetalGod there was an extra ; here */
 
 	maps = ReadEntFile("dday/maplist.txt");
 
@@ -649,7 +666,9 @@ void EndDMLevel(void)
 						//if campaign points back to first map, move on in maplist
 						char ck[20];
 						sprintf(ck, "%s", t);
-						strcat(ck, "1");
+						/* MetalGod destination size checking functions
+						strcat(ck, "1");		  */
+						Q_strncatz(ck, sizeof(ck), "1");
 						//gi.dprintf ("crere %s %s\n",ck, t);
 						if (strcmp(ck, team_list[0]->nextmap))
 						{
@@ -706,14 +725,16 @@ void EndDMLevel(void)
 							else
 							{
 								check = t;
-								strcat(check, "1");
-							
-							if (MapExists(check))
+								/* MetalGod destination size checking functions
+								strcat(check, "1");		*/
+								Q_strncatz(check, sizeof(check), "1");
+
+								if (MapExists(check))
 								{
 									safe_bprintf(PRINT_HIGH, "Next map: %s \n", check);
 									BeginIntermission(CreateTargetChangeLevel(check));
 									return;
-								}	
+								}
 							}
 						}
 					}
@@ -730,7 +751,9 @@ void EndDMLevel(void)
 							//last_maplist_map_played = t;
 							//first_non_maplist_map = NULL;
 							check = t;
-							strcat(check, "1");
+							/* MetalGod destination size checking functions
+							strcat(check, "1");		*/
+							Q_strncatz(check, sizeof(check), "1");
 							//gi.dprintf("%s kljfdsjlk\n",check);
 							if (MapExists(check))
 							{
@@ -760,7 +783,7 @@ void EndDMLevel(void)
 			if (t == NULL) //faf:  happens when running a map thats not on maplist and map is to change
 			{
 				//let it stay off maplist until a map on the maplist is changed to
-				if (team_list[0]->nextmap && MapExists(team_list[0]->nextmap))
+				if ((team_list[0] != NULL) && team_list[0]->nextmap && MapExists(team_list[0]->nextmap))
 				{
 					safe_bprintf(PRINT_HIGH, "Next map: %s \n", team_list[0]->nextmap);
 					BeginIntermission(CreateTargetChangeLevel(team_list[0]->nextmap));
@@ -780,7 +803,9 @@ void EndDMLevel(void)
 					else
 					{
 						check = tb;
-						strcat(check, "1");
+						/* MetalGod destination size checking functions
+							strcat(check, "1");		*/
+						Q_strncatz(check, sizeof(check), "1");
 						if (MapExists(check))
 						{
 							safe_bprintf(PRINT_HIGH, "Next map: %s \n", check);
@@ -894,7 +919,7 @@ void CheckDMRules(void)
 	//faf: ctb code
 	if (level.ctb_time)
 	{
-		vec3_t		w = {0}; //faf
+		vec3_t		w = { 0 }; //faf
 		float		briefcase_range;//faf /* MetalGod was range. Changed to a name that doesn't shadow an outer function */
 		edict_t* check;
 		edict_t* usaflag = NULL; /* MetalGod initialized */

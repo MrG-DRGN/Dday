@@ -1,4 +1,4 @@
-/*       D-Day: Normandy by Vipersoft
+﻿/*       D-Day: Normandy by Vipersoft
  ************************************
  *   $Source: /usr/local/cvsroot/dday/src/p_weapon.c,v $
  *   $Revision: 1.49 $
@@ -31,7 +31,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "m_player.h"
 
 /*-----/ PM /-----/ NEW:  Include new header files. /-----*/
-#include "x_fbomb.h"
+/* #include "x_fbomb.h" MetalGod no prototypes from this file used, so it has been removed from the source */
 #include "x_fire.h"
 /*--------------------------------------------------------*/
 
@@ -47,7 +47,7 @@ void weapon_grenade_fire(edict_t* ent);
 //bcass start - TNT
 void weapon_tnt_fire(edict_t* ent);
 //bcass end
-void ifchangewep(edict_t* ent);
+/* void ifchangewep(edict_t* ent);	MetalGod Unused*/
 edict_t* ApplyFirstAid(edict_t* ent);
 void Play_WepSound(edict_t* ent, char* sound);
 void Use_Weapon(edict_t* ent, gitem_t* item);
@@ -66,6 +66,12 @@ void P_ProjectSource(gclient_t* client, vec3_t point, vec3_t distance, vec3_t fo
 {
 	vec3_t	_distance;
 
+	/* MetalGod Sanity check! */
+	if (!client)
+	{
+		return;
+	}
+	/* END */
 	VectorCopy(distance, _distance);
 	if (client->pers.hand == LEFT_HANDED)
 		_distance[1] *= -1;
@@ -149,6 +155,13 @@ qboolean Pickup_Weapon(edict_t* ent, edict_t* other)
 	int			index;
 	gitem_t* ammo;
 	gitem_t* item;
+
+	/* MetalGod Sanity check! */
+	if (!ent || !other || !other->client)
+	{
+		return false;
+	}
+
 	index = ITEM_INDEX(ent->item);
 
 	item = ent->item;
@@ -183,8 +196,8 @@ qboolean Pickup_Weapon(edict_t* ent, edict_t* other)
 				ent->item->guninfo->rnd_count = ammo->quantity;
 
 			//faf: put bullets in map spawned guns
-			if (other->client)
-				Load_Weapon(other, item);
+			/* if (other->client) MetalGod - Let's do this check in a different way! */
+			Load_Weapon(other, item);
 
 			/*
 						if (ent->item->guninfo &&
@@ -707,8 +720,7 @@ void Drop_Weapon(edict_t* ent, gitem_t* item)
 	index = ITEM_INDEX(item);
 
 	// pbowens: fix in not drop weapon/while prone
-	if (!item ||
-		((item == ent->client->newweapon)) && (ent->client->pers.inventory[index] == 1))// && (ent->stanceflags != STANCE_STAND))
+	if (!item || (item == ent->client->newweapon && ent->client->pers.inventory[index] == 1))// && (ent->stanceflags != STANCE_STAND))
 	{
 		//safe_cprintf (ent, PRINT_HIGH, "Can't drop current weapon\n");
 		return;
@@ -868,10 +880,10 @@ void weapon_grenade_fire(edict_t* ent)
 	// unused
 	float	time = 0;
 	int		team = 0;
-	if (!ent || !ent->client || !ent->client->grenade)
+	if (!ent || !ent->client)
 		return;
 	//faf
-	if (ent->client && ent->client->grenade) // disable the grenade from triggering self, but still leave timers on
+	if (ent->client->grenade) // disable the grenade from triggering self, but still leave timers on
 	{
 		VectorCopy(ent->s.origin, ent->client->grenade->s.origin);
 		ent->client->grenade->s.modelindex = 0; // set model to null
@@ -983,7 +995,7 @@ void weapon_grenade_prime(edict_t* ent, int team)
 void Weapon_Grenade(edict_t* ent)
 {
 	/* MetalGod sanity check */
-	if (!ent||!ent->client)
+	if (!ent || !ent->client)
 		return;
 
 	//	if(	(!ent->client->grenade_index && !ent->client->pers.inventory[ent->client->ammo_index]) ||
@@ -1006,7 +1018,7 @@ void Weapon_Grenade(edict_t* ent)
 		ent->client->grenade_index = 0;
 	}
 
-	if (/* ent->client->pers.weapon && MetalGOd redundant check */ 
+	if (/* ent->client->pers.weapon && MetalGod redundant check */
 		ent->client->pers.weapon->pickup_name &&
 		frame_output)
 		gi.dprintf("%i / %i - %s\n", ent->client->weaponstate, ent->client->ps.gunframe, ent->client->pers.weapon->pickup_name);
@@ -1050,7 +1062,8 @@ void Weapon_Grenade(edict_t* ent)
 			*/
 
 			ent->client->latched_buttons &= ~BUTTON_ATTACK;
-			if (1)//ent->client->pers.inventory[ent->client->ammo_index])
+			/* MetalGod always true so simplify!
+			if (1)//ent->client->pers.inventory[ent->client->ammo_index]) */
 			{
 				// You don't pull a pin from a live grenade
 				if (ent->client->pers.weapon->classnameb == AMMO_GRENADES_GBR)
@@ -1060,7 +1073,7 @@ void Weapon_Grenade(edict_t* ent)
 				ent->client->weaponstate = WEAPON_FIRING;
 				//				if (!ent->client->grenade)
 				//					ent->client->grenade_time = 0;
-			}
+			} /*
 			else
 			{
 				if (level.time >= ent->pain_debounce_time)
@@ -1068,9 +1081,11 @@ void Weapon_Grenade(edict_t* ent)
 					gi.sound(ent, CHAN_VOICE, gi.soundindex("weapons/noammo.wav"), 1, ATTN_NORM, 0);
 					ent->pain_debounce_time = level.time + 1;
 				}
-				/*if(auto_weapon_change->value)*/
+				if(auto_weapon_change->value)
 					//NoAmmoWeaponChange (ent);
 			}
+			 MetalGod END */
+
 			return;
 		}
 
@@ -1104,7 +1119,9 @@ void Weapon_Grenade(edict_t* ent)
 		if (ent->client->ps.gunframe == 3)
 		{
 			//faf:  play part of wave animation when pulling pin
-			if (ent->client && ent->stanceflags == STANCE_STAND)
+			/* MetalGod - checking for ent-client is redundant here, sorry, faf!
+			if (ent->client && ent->stanceflags == STANCE_STAND)*/
+			if (ent->stanceflags == STANCE_STAND)
 			{
 				ent->client->anim_priority = ANIM_WAVE;
 				ent->s.frame = 61;//(FRAME_wave05);
@@ -1335,7 +1352,7 @@ void fire_Knife(edict_t* self, vec3_t start, vec3_t aimdir, int damage, int kick
 					Play_Bullet_Hit(self, tr.surface->name, tr.endpos, tr.ent);
 					if ((!tr.ent->obj_owner || tr.ent->obj_owner != self->client->resp.team_on->index) && (rand() % 100) < 20)
 					{
-						if (tr.ent->classnameb != OBJECTIVE_VIP && (!tr.ent->svflags) & SVF_DEADMONSTER)
+						if (tr.ent->classnameb != OBJECTIVE_VIP && !(tr.ent->svflags & SVF_DEADMONSTER))
 							ThrowDebris(self, "models/objects/debris2/tris.md2", 1, tr.endpos);
 					}
 				}
@@ -1427,7 +1444,7 @@ void Blade_touch(edict_t* self, edict_t* other, cplane_t* plane, csurface_t* sur
 	if (other == self->owner)
 		return;
 
-	if (/* surf && */(surf->flags & SURF_SKY))/* MetalGod redundant check */
+	if (surf && (surf->flags & SURF_SKY))
 	{
 		//faf ??		Drop_Item (self, item);
 		G_FreeEdict(self);
@@ -1703,7 +1720,7 @@ void Weapon_Knife_Fire(edict_t* ent)
 	vec3_t g_offset;
 
 	/* MetalGod sanity check */
-	if (!ent||!ent->client )
+	if (!ent || !ent->client)
 		return;
 
 	qboolean armedfists = Q_stricmp(ent->client->pers.weapon->pickup_name, "Knife");
@@ -1716,7 +1733,7 @@ void Weapon_Knife_Fire(edict_t* ent)
 	if (!armedfists && !ent->client->pers.inventory[knife_index])
 	{
 		// rezmoth - following line crashed the game [PBFIX]
-		if (ent->client && ent->client->pers.weapon &&//faf
+		if (/*ent->client && */ ent->client->pers.weapon &&//faf /* MetalGod - redundant check for ent-client removed */
 			ent->client->pers.weapon->guninfo)
 			ent->client->ps.gunframe = ent->client->pers.weapon->guninfo->LastFire;
 		ent->client->aim = false;
@@ -1755,7 +1772,7 @@ void Weapon_Knife_Fire(edict_t* ent)
 
 		if (!(ent->s.frame >= 283 && ent->s.frame <= 294))
 		{
-			if (ent->client && ent->stanceflags == STANCE_STAND)
+			if (/* ent->client && */ent->stanceflags == STANCE_STAND)/* MetalGod - redundant check for ent-client removed */
 			{
 				ent->client->anim_priority = ANIM_ATTACK;
 				ent->s.frame = 128;
@@ -2128,7 +2145,7 @@ void Weapon_Morphine_Use(edict_t* ent)
 		target = ent;
 	else
 	{
-		if ((target = ApplyFirstAid(ent))== NULL) /* MetalGod if NULL*/
+		if ((target = ApplyFirstAid(ent)) == NULL) /* MetalGod if NULL*/
 			return;
 
 		if (!target->client)
@@ -2161,7 +2178,8 @@ void Weapon_Morphine_Use(edict_t* ent)
 				ent->goalentity = NULL;
 				ent->enemy = NULL;
 				AI_PickLongRangeGoal(ent);
-				AI_ResetWeights(ent);
+				/* MetalGod Function Prototype for a function that no longer exists.
+				AI_ResetWeights(ent); */
 				AI_ResetNavigation(ent);
 			}
 		}
@@ -2199,7 +2217,8 @@ void Weapon_Morphine_Use(edict_t* ent)
 					ent->movetarget = NULL;
 					ent->goalentity = NULL;
 					ent->enemy = NULL;
-					AI_ResetWeights(ent);
+					/* MetalGod Function Prototype for a function that no longer exists.
+					AI_ResetWeights(ent);  */
 					AI_ResetNavigation(ent);
 					AI_PickLongRangeGoal(ent);
 				}

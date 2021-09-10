@@ -1,4 +1,4 @@
-/*       D-Day: Normandy by Vipersoft
+﻿/*       D-Day: Normandy by Vipersoft
  ************************************
  *   $Source: /usr/local/cvsroot/dday/src/q_shared.h,v $
  *   $Revision: 1.8 $
@@ -30,9 +30,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifdef _WIN32
 // unknown pragmas are SUPPOSED to be ignored, but....
 #pragma warning(disable : 4244)	// MIPS
-#pragma warning(disable : 4136)	// X86
-#pragma warning(disable : 4051)	// ALPHA
-#pragma warning(disable : 4996)	// deprecated functions
+//#pragma warning(disable : 4136)	// X86
+//#pragma warning(disable : 4051)	// ALPHA
+#pragma warning(disable : 4996)		// Shut up MSVS	 about deppreciated/unsafe functions
 #pragma warning(disable : 4100)	// unreferenced formal parameter
 /*
 #pragma warning(disable : 4305)	// truncation from const double to float
@@ -49,7 +49,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #pragma warning(disable : 4255)	// no function prototype given: converting to void
 
 */
-#pragma warning(disable : 4996)		// Shut up MSVS
+
 #endif
 
 #include <assert.h>
@@ -93,10 +93,40 @@ TODO: Replace all calls to this function with something that doesn't hide reserv
 
 typedef unsigned char 		byte;
 typedef enum { false, true }      qboolean;
+#ifdef _WIN32
+#ifndef __func__	// C++11 mandated identifier
+#define __func__ __FUNCTION__ // else use the ANSI C (C9x)
+#endif
+#endif
 
 #ifndef NULL
 #define NULL ((void *)0)
 #endif
+
+// Knightmare added
+#ifndef min
+#define min(a,b)        (((a) < (b)) ? (a) : (b))
+#endif
+#ifndef max
+#define max(a,b)        (((a) > (b)) ? (a) : (b))
+#endif
+
+/* MetalGod from Quake3 source */
+#ifdef _MSC_VER	// _WIN32
+//#define Q_vsnprintf _vsnprintf
+__inline int Q_vsnprintf(char* Dest, size_t Count, const char* Format, va_list Args) {
+	int ret = _vsnprintf(Dest, Count, Format, Args);
+	Dest[Count - 1] = 0;	// null terminate
+	return ret;
+}
+#else
+// TODO: do we need Mac define?
+#define Q_vsnprintf vsnprintf
+#endif
+/* MetalGod END */
+
+size_t Q_strncpyz(char* dst, size_t dstSize, const char* src);
+size_t Q_strncatz(char* dst, size_t dstSize, const char* src);
 
 // angle indexes
 #define	PITCH				0		// up / down
@@ -217,7 +247,7 @@ void R_ConcatRotations(float in1[3][3], float in2[3][3], float out[3][3]);
 void R_ConcatTransforms(float in1[3][4], float in2[3][4], float out[3][4]);
 
 void AngleVectors(vec3_t angles, vec3_t forward, vec3_t right, vec3_t up);
-int BoxOnPlaneSide(vec3_t emins, vec3_t emaxs, struct cplane_s* plane);
+int BoxOnPlaneSide(vec3_t emins, vec3_t emaxs, struct cplane_s* p);
 float	anglemod(float a);
 float LerpAngle(float a1, float a2, float frac);
 
@@ -248,7 +278,7 @@ void COM_StripExtension(char* in, char* out);
 void COM_FileBase(char* in, char* out);
 void COM_FilePath(char* in, char* out);
 void COM_DefaultExtension(char* path, char* extension);
-/* MetalGod MetalGod Fix COM_Parse buffer overflow. TY QW 
+/* MetalGod MetalGod Fix COM_Parse buffer overflow. TY QW
 char* COM_Parse(char** data_p);
 */
 char* COM_Parse(const char** data_p);
@@ -261,7 +291,7 @@ void Com_PageInMemory(byte* buffer, int size);
 //=============================================
 
 // portable case insensitive compare
-int Q_stricmp(char* s1, char* s2);
+int Q_stricmp(const char* s1, const char* s2); /* MetalGod Const*/
 int Q_strcasecmp(char* s1, char* s2);
 int Q_strncasecmp(char* s1, char* s2, int n);
 

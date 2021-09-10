@@ -1,4 +1,4 @@
-/*       D-Day: Normandy by Vipersoft
+﻿/*       D-Day: Normandy by Vipersoft
  ************************************
  *   $Source: /usr/local/cvsroot/dday/src/p_client.c,v $
  *   $Revision: 1.63 $
@@ -64,7 +64,7 @@ static void SP_FixCoopSpots(edict_t* self)
 	edict_t* spot = NULL; /* MetalGod moved initialization/assignment up here. */
 	vec3_t	d;
 
-	
+
 
 	while (1)
 	{
@@ -76,7 +76,7 @@ static void SP_FixCoopSpots(edict_t* self)
 		VectorSubtract(self->s.origin, spot->s.origin, d);
 		if (VectorLength(d) < 384)
 		{
-			if ((!self->targetname) || stricmp(self->targetname, spot->targetname) != 0)
+			if ((!self->targetname) || Q_stricmp(self->targetname, spot->targetname) != 0)
 			{
 				//				gi.dprintf("FixCoopSpots changed %s at %s targetname from %s to %s\n", self->classname, vtos(self->s.origin), self->targetname, spot->targetname);
 				self->targetname = spot->targetname;
@@ -94,7 +94,7 @@ static void SP_CreateCoopSpots(edict_t* self)
 {
 	edict_t* spot;
 
-	if (stricmp(level.mapname, "security") == 0)
+	if (Q_stricmp(level.mapname, "security") == 0)
 	{
 		spot = G_Spawn();
 		spot->classname = "info_player_coop";
@@ -178,7 +178,7 @@ void SP_info_player_start(edict_t* self)
 
 	if (!coop->value)
 		return;
-	if (stricmp(level.mapname, "security") == 0)
+	if (Q_stricmp(level.mapname, "security") == 0)
 	{
 		// invoke one of our gross, ugly, disgusting hacks
 		self->think = SP_CreateCoopSpots;
@@ -212,20 +212,20 @@ void SP_info_player_coop(edict_t* self)
 		return;
 	}
 
-	if ((stricmp(level.mapname, "jail2") == 0) ||
-		(stricmp(level.mapname, "jail4") == 0) ||
-		(stricmp(level.mapname, "mine1") == 0) ||
-		(stricmp(level.mapname, "mine2") == 0) ||
-		(stricmp(level.mapname, "mine3") == 0) ||
-		(stricmp(level.mapname, "mine4") == 0) ||
-		(stricmp(level.mapname, "lab") == 0) ||
-		(stricmp(level.mapname, "boss1") == 0) ||
-		(stricmp(level.mapname, "fact3") == 0) ||
-		(stricmp(level.mapname, "biggun") == 0) ||
-		(stricmp(level.mapname, "space") == 0) ||
-		(stricmp(level.mapname, "command") == 0) ||
-		(stricmp(level.mapname, "power2") == 0) ||
-		(stricmp(level.mapname, "strike") == 0))
+	if ((Q_stricmp(level.mapname, "jail2") == 0) ||
+		(Q_stricmp(level.mapname, "jail4") == 0) ||
+		(Q_stricmp(level.mapname, "mine1") == 0) ||
+		(Q_stricmp(level.mapname, "mine2") == 0) ||
+		(Q_stricmp(level.mapname, "mine3") == 0) ||
+		(Q_stricmp(level.mapname, "mine4") == 0) ||
+		(Q_stricmp(level.mapname, "lab") == 0) ||
+		(Q_stricmp(level.mapname, "boss1") == 0) ||
+		(Q_stricmp(level.mapname, "fact3") == 0) ||
+		(Q_stricmp(level.mapname, "biggun") == 0) ||
+		(Q_stricmp(level.mapname, "space") == 0) ||
+		(Q_stricmp(level.mapname, "command") == 0) ||
+		(Q_stricmp(level.mapname, "power2") == 0) ||
+		(Q_stricmp(level.mapname, "strike") == 0))
 	{
 		// invoke one of our gross, ugly, disgusting hacks
 		self->think = SP_FixCoopSpots;
@@ -251,7 +251,7 @@ void SP_info_Special_Start(edict_t *ent){SP_info_reinforcement_start(ent);}
 void SP_info_Officer_Start(edict_t *ent) {SP_info_reinforcement_start(ent);}
 */
 
-void SP_info_player_intermission(edict_t* ent){} /*  MetalGod make the prototype match the actual function */
+void SP_info_player_intermission(edict_t* ent) {} /*  MetalGod make the prototype match the actual function */
 void SP_info_reinforcement_start(edict_t* ent);
 void SP_info_Infantry_Start(edict_t* ent)
 {
@@ -339,6 +339,14 @@ void ClientObituary(edict_t* self, edict_t* inflictor, edict_t* attacker)
 	qboolean	ff;
 	edict_t* Tent;
 
+
+	/* MetalGod Sanity check */
+	if (!self || !self->client)
+	{
+		return;
+	}
+	/* MetalGod */
+
 	/*-----/ PM /-----/ MODIFIED:  Condition split up for portability. /-----*/
 	if (coop->value)
 		if (attacker->client)
@@ -409,7 +417,7 @@ void ClientObituary(edict_t* self, edict_t* inflictor, edict_t* attacker)
 
 		if (message) //already have message = killed self somehow
 		{
-			if (self->ai && self->client && self->client->resp.team_on)
+			if (self->ai && self->client->resp.team_on)
 			{
 				int teamnum = self->client->resp.team_on->index;
 
@@ -423,7 +431,7 @@ void ClientObituary(edict_t* self, edict_t* inflictor, edict_t* attacker)
 		}
 		if (attacker == self)
 		{
-			if (self->ai && self->client && self->client->resp.team_on)
+			if (self->ai && self->client->resp.team_on)
 			{
 				int teamnum = self->client->resp.team_on->index;
 
@@ -1539,7 +1547,7 @@ edict_t* SelectRandomDeathmatchSpawnPoint(void)
 	edict_t* spot, * spot1, * spot2;
 	int		count = 0;
 	int		selection;
-	float	range, range1, range2;
+	float	rnge, range1, range2;	/* MetalGod to avoid Shadow declaration */
 
 	spot = NULL;
 	range1 = range2 = 99999;
@@ -1548,15 +1556,15 @@ edict_t* SelectRandomDeathmatchSpawnPoint(void)
 	while ((spot = G_Find(spot, FOFS(classname), "info_player_deathmatch")) != NULL)
 	{
 		count++;
-		range = PlayersRangeFromSpot(spot->s.origin);
-		if (range < range1)
+		rnge = PlayersRangeFromSpot(spot->s.origin);
+		if (rnge < range1)
 		{
-			range1 = range;
+			range1 = rnge;
 			spot1 = spot;
 		}
-		else if (range < range2)
+		else if (rnge < range2)
 		{
-			range2 = range;
+			range2 = rnge;
 			spot2 = spot;
 		}
 	}
@@ -2445,6 +2453,9 @@ void PutClientInServer(edict_t* ent)
 	ent->client->last_fire_time = 0;
 
 	stuffcmd(ent, "crosshair 0;");
+	/* MetalGod - added Paril's fix for this getting reset after map changes  */
+	if (!ent->client->pers.connected)
+		ent->client->pers.connected = true;
 }
 
 /*
@@ -2460,7 +2471,7 @@ void ClientBeginDeathmatch(edict_t* ent)
 	/* MetalGod sanity check */
 	if (!ent->client)
 		return;
-	
+
 	G_InitEdict(ent);
 
 	InitClientResp(ent->client);
@@ -2637,11 +2648,11 @@ void ClientUserinfoChanged(edict_t* ent, char* userinfo)
 
 	playernum = ent - g_edicts - 1;
 
-	/*if (ent) MetalGod redundant */
+	if (ent)
 	{
 		char skin[64];
 
-		if ((ent->client->resp.team_on !=NULL) && ent->client->resp.mos)
+		if ((ent->client->resp.team_on != NULL) && ent->client->resp.mos)
 		{
 			//faf:  has the mapper set a custom skin?
 /*			if (team_list[ent->client->resp.team_on->index]->skin)
@@ -2712,7 +2723,7 @@ void ClientUserinfoChanged(edict_t* ent, char* userinfo)
 
 			gi.configstring(CS_PLAYERSKINS + playernum, va("%s\\%s",
 				ent->client->pers.netname, skin));
-		} 
+		}
 		/*		if (ent->ai && !strcmp(ent->client->pers.netname, "Hitler"))
 				{
 					strcpy(skin, "grm/h");
@@ -2722,9 +2733,8 @@ void ClientUserinfoChanged(edict_t* ent, char* userinfo)
 	}
 
 	// combine name and skin into a configstring
-	/* MetalGod not sure this was every called 
 	else
-		gi.configstring(CS_PLAYERSKINS + playernum, va("%s\\%s", ent->client->pers.netname, s)); */
+		gi.configstring(CS_PLAYERSKINS + playernum, va("%s\\%s", ent->client->pers.netname, s));
 
 	// handedness
 	s = Info_ValueForKey(userinfo, "hand");
@@ -3218,7 +3228,10 @@ qboolean Setup_Map_Vote(void)
 	changefirstmap = false;
 	for (i = 0; i < 4; i++)
 	{
+		/*  MetalGod Simplify expression
 		if (i == 0 && level.nextmap)
+		*/
+		if (i == 0)
 		{
 			//if nextmap is same as current map or one played recently, list that last instead of 4th
 			if (!strcmp(level.nextmap, level.mapname))
@@ -3273,9 +3286,11 @@ qboolean Setup_Map_Vote(void)
 	}
 
 	//if nextmap was played in last 10 maps, list it 4th
+	/* MetalGod do nothing?
 	if (level.nextmap)
 	{
 	}
+	*/
 	return true;
 }
 
@@ -4244,7 +4259,7 @@ void Write_Player_Stats(edict_t* ent)
 	char* ip;
 	int		c;
 
-	char* s, * f= NULL;
+	char* s, * f = NULL;
 
 	char* statsc;
 

@@ -1,4 +1,4 @@
-/*       D-Day: Normandy by Vipersoft
+﻿/*       D-Day: Normandy by Vipersoft
  ************************************
  *   $Source: /usr/local/cvsroot/dday/src/g_weapon.c,v $
  *   $Revision: 1.49 $
@@ -40,7 +40,7 @@ void check_unscope(edict_t* ent)
 	if (!ent || !ent->client)
 		return;
 
-	if (ent->client && ent->client->pers.weapon && ent->client->pers.weapon->position != LOC_SNIPER)
+	if (ent->client->pers.weapon && ent->client->pers.weapon->position != LOC_SNIPER)
 		return;
 
 	if (ent->client->ps.fov == SCOPE_FOV)
@@ -311,7 +311,7 @@ void showvector(char* namevector, vec3_t showvector)
 {
 	gi.dprintf("%s (%f, %f, %f)\n", namevector, showvector[0], showvector[1], showvector[2]);
 }
-
+/* MetalGod unused
 // rezmoth - new function to fire bullet
 void fire_gun_old(edict_t* self, vec3_t start, vec3_t aimdir, int damage, int kick, int hspread, int vspread, int mod, qboolean calcv)
 {
@@ -361,7 +361,7 @@ void fire_gun_old(edict_t* self, vec3_t start, vec3_t aimdir, int damage, int ki
 	tr = gi.trace(self->s.origin, NULL, NULL, start, self, MASK_SHOT);
 
 	// if the trace hit anything before distance termination
-	if (!(tr.fraction < 1.0))
+	if (tr.fraction >= 1.0) // MetalGod simplified
 	{
 		// seperate the aimdir into three parts
 		vectoangles(aimdir, dir);
@@ -541,7 +541,7 @@ void fire_gun_old(edict_t* self, vec3_t start, vec3_t aimdir, int damage, int ki
 					{
 						if (tr.ent->health > 0)
 						{
-							if (!((tr.ent->classnameb) == OBJECTIVE_VIP && (tr.ent->svflags & SVF_DEADMONSTER))) /* MetalGod fixed! */
+							if (!((tr.ent->classnameb) == OBJECTIVE_VIP && (tr.ent->svflags & SVF_DEADMONSTER))) // MetalGod fixed!
 								ThrowDebris(self, "models/objects/debris2/tris.md2", 1, tr.endpos);
 						}
 					}
@@ -611,7 +611,7 @@ void fire_gun_old(edict_t* self, vec3_t start, vec3_t aimdir, int damage, int ki
 	}
 
 	//Play_Bullet_Whiz(self, start, tr.endpos, hit_ent);
-}
+}	 MetalGod END */
 
 /*
 =================
@@ -792,6 +792,7 @@ pistols, rifles, etc....
 */
 void fire_bullet(edict_t* self, vec3_t start, vec3_t aimdir, int damage, int kick, int hspread, int vspread, int mod, qboolean tracers_on)
 {
+	/* MetalGod so much of this was commented out...  eliminated duplicate condition
 	//the next line is for monsters who don't like to shoot tracers...
 	if (!tracers_on)
 		fire_lead(self, start, aimdir, damage, kick, TE_GUNSHOT, hspread, vspread, mod, true);
@@ -803,6 +804,8 @@ void fire_bullet(edict_t* self, vec3_t start, vec3_t aimdir, int damage, int kic
 		//		else
 		fire_lead(self, start, aimdir, damage, kick, TE_GUNSHOT, hspread, vspread, mod, true);
 	}
+	*/
+	fire_lead(self, start, aimdir, damage, kick, TE_GUNSHOT, hspread, vspread, mod, true);
 }
 
 /*
@@ -1269,10 +1272,14 @@ void Shrapnel_Explode(edict_t* ent)
 		G_FreeEdict(ent);
 		return;
 	}
+	/* MetalGod Sanity check */
+	if (!ent)
+	{
+		return;
+	}
 
-	if (ent->owner->client &&
-		(!ent->owner->client->resp.team_on ||
-			ent->owner->client->resp.team_on->index != ent->obj_owner))
+	if ((!ent->owner->client->resp.team_on ||
+		ent->owner->client->resp.team_on->index != ent->obj_owner))
 	{
 		G_FreeEdict(ent);
 		return;
@@ -1302,7 +1309,7 @@ void Shrapnel_Explode(edict_t* ent)
 		}
 	}
 
-	if (ent->owner && ent->owner->client)
+	if (ent->owner->client)
 		PlayerNoise(ent->owner, ent->s.origin, PNOISE_IMPACT);
 
 	//pbowens: quick hack to make only USA Grenade fire fragments
@@ -1354,9 +1361,10 @@ void Shrapnel_Explode(edict_t* ent)
 		T_Damage(ent->owner, ent->owner, ent->owner, ent->maxs, ent->s.origin, vec3_origin, 100, 0, 0, MOD_HELD_GRENADE);
 	}
 
-	if (1)
+	/* MetalGOd always true, so simplify
+	if (1)		  */
 	{
-		/* MetalGod declariation of i removed, as it hid the prior local declaration */
+
 		edict_t* cl_ent;
 
 		for (i = 0; i < maxclients->value; i++)
@@ -1570,7 +1578,7 @@ void grenade_die(edict_t* self, edict_t* inflictor, edict_t* attacker, int damag
 }
 void fire_grenade2(edict_t* self, vec3_t start, vec3_t aimdir, int damage, int speed, float time, float damage_radius, int team)
 {
-	edict_t* grenade;
+	edict_t* grenade = NULL;
 	vec3_t	dir;
 	vec3_t	forward, right, up;
 
@@ -1604,6 +1612,11 @@ void fire_grenade2(edict_t* self, vec3_t start, vec3_t aimdir, int damage, int s
 //              if (grenade->item && grenade->item->world_model)
 //                      grenade->s.modelindex =  gi.modelindex(grenade->item->world_model);
 //              else
+		/* MetalGod Sanity check for NULL */
+		if (NULL == grenade)
+			return;
+		/* MetalGod */
+
 		if (grenade->item)
 		{
 			// team = Q_stricmp(grenade->item->ammo , "Mk 2 Grenade");  //faf: team dll support, replaced with below
@@ -2005,7 +2018,7 @@ void fire_rocket_piat(edict_t* self, vec3_t start, vec3_t dir, int damage, int s
 	rocket->touch = rocket_touch;
 
 	rocket->gravity = gravity;//1;//.9; //faf
-	
+
 	/* Metalgod reassigend in either of the conditionals below
 	rocket->nextthink = level.time + 8000 / speed;
 	rocket->think = G_FreeEdict;
@@ -2168,7 +2181,7 @@ void fire_gun(edict_t* self, vec3_t start, vec3_t aimdir, int damage, int kick, 
 	vec3_t forward, right, up;
 
 	/* MetalGod sanity check */
-	if (!self ||!self->client)
+	if (!self || !self->client)
 		return;
 
 	AngleVectors(aimdir, forward, right, up);
@@ -4617,7 +4630,7 @@ void Weapon_Sten_Fire(edict_t* ent)
 
 		return;
 	}
-	
+
 	/* MetalGod this is horseshit... if you comment out all the innards, why not just comment the whole damn thing!?!?
 	if (!ent->client->aim)
 	{
@@ -4647,7 +4660,7 @@ void Weapon_Sten_Fire(edict_t* ent)
 		//ent->client->kick_angles[0] = ent->client->machinegun_shots * -1.5;
 	}
 */
-	// raise the gun as it is firing
+// raise the gun as it is firing
 //	if (!deathmatch->value)
 //	{
 	if (!ent->ai)
@@ -4678,7 +4691,7 @@ void Weapon_Sten_Fire(edict_t* ent)
 		ent->client->mags[mag_index].submg_rnd = 0;
 		return;
 	}
-	
+
 	/* MetalGod overwritten below
 	// rezmoth - cosmetic recoil
 	if (level.framenum % 3 == 0)
@@ -4689,7 +4702,7 @@ void Weapon_Sten_Fire(edict_t* ent)
 			ent->client->kick_angles[0] = -3;
 	}
 	*/
-	
+
 	// pbowens: for darwin's 3.2 kick
 	ent->client->kick_angles[0] = ent->client->machinegun_shots * -1;
 	ent->client->kick_angles[1] = ent->client->machinegun_shots * .3;
@@ -5734,7 +5747,7 @@ void Weapon_Pps43_Fire(edict_t* ent)
 		VectorSet(offset, 0, 0, ent->viewheight - 0);	//10
 	else
 		gi.dprintf("*** Firing System Error\n");
-	
+
 	/* MetalGod overwritten below
 	// rezmoth - cosmetic recoil
 	if (level.framenum % 3 == 0)
@@ -5745,7 +5758,7 @@ void Weapon_Pps43_Fire(edict_t* ent)
 			ent->client->kick_angles[0] = -3;
 	}
 	*/
-	
+
 	// pbowens: for darwin's 3.2 kick
 	ent->client->kick_angles[0] = ent->client->machinegun_shots * -1;
 

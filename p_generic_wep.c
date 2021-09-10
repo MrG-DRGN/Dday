@@ -1,4 +1,4 @@
-/*       D-Day: Normandy by Vipersoft
+﻿/*       D-Day: Normandy by Vipersoft
  ************************************
  *   $Source: /usr/local/cvsroot/dday/src/p_generic_wep.c,v $
  *   $Revision: 1.23 $
@@ -270,7 +270,7 @@ void Weapon_Generic(edict_t* ent,
 						*ent->client->p_rnd = *ent->client->p_fract;
 				}
 			}
-
+			/* MetalGod Duplicated as default below so... why bother?
 			else if (ent->client->pers.weapon->topoff == 2)//for beltfed
 			{
 				if (*ammo_amount)
@@ -279,8 +279,7 @@ void Weapon_Generic(edict_t* ent,
 						ent->client->pers.inventory[ammo_index]--;
 					*ent->client->p_rnd = ammo_item->quantity;
 				}
-			}
-
+			}*/
 			else
 			{
 				if (*ammo_amount) //feeder clips (not topoffable
@@ -405,7 +404,7 @@ void Weapon_Generic(edict_t* ent,
 			return;
 		}
 
-		if (stricmp(ent->client->pers.weapon->pickup_name, "M1919 Browning") == 0)
+		if (Q_stricmp(ent->client->pers.weapon->pickup_name, "M1919 Browning") == 0)
 		{
 			if (ent->client->ps.gunframe == 18)
 				gi.sound(ent, CHAN_WEAPON, gi.soundindex("weapons/sshotr1b.wav"), 1, ATTN_NORM, 0);
@@ -598,7 +597,7 @@ void Weapon_Generic(edict_t* ent,
 				goto skip_anim;
 
 			ent->client->anim_priority = ANIM_ATTACK;
-			if (!(ent->client->pers.weapon && ent->client->pers.weapon->classnameb == WEAPON_FISTS))
+			if (ent->client->pers.weapon->classnameb != WEAPON_FISTS) /* MetalGod simplified */
 			{
 				if (ent->stanceflags == STANCE_DUCK)
 				{
@@ -812,9 +811,9 @@ void Weapon_Generic(edict_t* ent,
 		}
 	}
 }
-
+/*	  MetalGod Unused
 void ifchangewep(edict_t* ent)
 {
 	//	if(auto_weapon_change->value) NoAmmoWeaponChange (ent);
 	return;
-}
+}	 */

@@ -1,4 +1,4 @@
-/*
+﻿/*
 Copyright (C) 1997-2001 Id Software, Inc.
 
 This program is free software; you can redistribute it and/or
@@ -154,7 +154,7 @@ void AITools_DrawPath(edict_t* self, int node_from, int node_to)
 // AITools_ShowPlinks
 // Draws lines from the current node to it's plinks nodes
 //==========================================
-static int	debugdrawplinks_timeout;
+/* static int	debugdrawplinks_timeout; MetalGod Unused */
 void AITools_ShowPlinks(void)
 {
 	/*	int		current_node;
@@ -219,7 +219,7 @@ void SV_Remove_Node(edict_t* ent)
 	if (sv_cheats->value == 0)
 		return;
 
-	nearest_distance = 999999999.0F;/* MetalGod 9999999999 was excesive and overflows a float! Made explicit float */
+	nearest_distance = 9999999999.0F;/* MetalGod 9Made explicit float */
 	nearest = -1;
 	for (i = 1; i < MAX_NODES; i++)
 	{
@@ -297,6 +297,7 @@ void Show_Nodes_Think(edict_t* ent)
 		ent->think = G_FreeEdict;
 		ent->nextthink = level.time + .1;
 		gi.dprintf("No nodes!\n");
+		return;	 /* MetalGod Avoid opperation on a negative array below if neartest were somehow  == -1 */
 	}
 
 	if (ent->mass >= pLinks[nearest].numLinks)

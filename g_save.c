@@ -1,4 +1,4 @@
-/*       D-Day: Normandy by Vipersoft
+﻿/*       D-Day: Normandy by Vipersoft
  ************************************
  *   $Source: /usr/local/cvsroot/dday/src/g_save.c,v $
  *   $Revision: 1.17 $
@@ -228,7 +228,12 @@ int			GlobalAliciaModeVariable = 0;
 
 void InitGame(void)
 {
+	time_t t;/* MetalGod */
 	gi.dprintf("==== InitGame ====\n");
+
+	/* MetalGod Intializes random number generator */
+	srand((unsigned)time(&t));
+	/* MetalGod */
 
 #ifdef DEBUG
 	gi.dprintf("-- DEBUG  BUILD --\n");
@@ -290,9 +295,9 @@ void InitGame(void)
 	gi.cvar("gamename", GAMEVERSION, CVAR_SERVERINFO | CVAR_LATCH);
 	gi.cvar("gamedate", __DATE__, CVAR_SERVERINFO | CVAR_LATCH);
 
-	gi.cvar("dll_version", "MetalGod's DDay .04b "__DATE__, CVAR_SERVERINFO | CVAR_LATCH); //faf //InFerNo_/*MetalGod*/
+	gi.cvar("dll_version", "Metal!nfy's DDay 5.99b "__DATE__, CVAR_SERVERINFO | CVAR_LATCH); //faf //InFerNo_/* MetalGod */
 
-	gi.cvar("website", "http://www.DdayDev.com", CVAR_SERVERINFO | CVAR_LATCH); //faf
+	gi.cvar("website", "https://www.DdayDev.com", CVAR_SERVERINFO | CVAR_LATCH); //faf	 /* MetalGod changed  to https */
 
 	sv_maplist = gi.cvar("sv_maplist", "dday inland invade soviet desert poldday itadday", 0); //faf: from q2 code
 
@@ -305,8 +310,8 @@ void InitGame(void)
 	dmflags = gi.cvar("dmflags", "0", CVAR_SERVERINFO);
 	// change anytime vars
 	/* MetalGod removed these from serverinfo as nobody cares or needs to know */
-	
-	fraglimit = gi.cvar("fraglimit", "0", 0); 
+
+	fraglimit = gi.cvar("fraglimit", "0", 0);
 	timelimit = gi.cvar("timelimit", "0", 0);
 	/* END */
 	password = gi.cvar("password", "", CVAR_USERINFO);
@@ -340,7 +345,7 @@ void InitGame(void)
 	constant_play = gi.cvar("constant_play", "0", 0);
 
 	ctc = gi.cvar("ctc", "0", 0);
-	
+
 	mashup = gi.cvar("mashup", "0", 0);
 
 	fast_knife = gi.cvar("fast_knife", "0", 0);

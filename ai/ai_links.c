@@ -1,4 +1,4 @@
-/*
+﻿/*
 Copyright (C) 1997-2001 Id Software, Inc.
 
 This program is free software; you can redistribute it and/or
@@ -35,6 +35,7 @@ char* AI_LinkString(int linktype)
 {
 	char* s = NULL; /*MetalGod initialized */
 
+	/* MetalGod This sort of thing is faster with a switch (For long lists of if else)
 	if (linktype == LINK_MOVE)
 		s = "LINK_MOVE";
 	else if (linktype == LINK_STAIRS)
@@ -64,6 +65,53 @@ char* AI_LinkString(int linktype)
 		s = "LINK_JUMP";
 	else if (linktype)
 		s = "UNKNOWN";
+	   */
+	switch (linktype)
+	{
+	case LINK_MOVE:
+		s = "LINK_MOVE";
+		break;
+	case LINK_STAIRS:
+		s = "LINK_STAIRS";
+		break;
+	case LINK_FALL:
+		s = "LINK_FALL";
+		break;
+	case LINK_CLIMB:
+		s = "LINK_CLIMB";
+		break;
+	case LINK_TELEPORT:
+		s = "LINK_TELEPORT";
+		break;
+	case LINK_PLATFORM:
+		s = "LINK_PLATFORM";
+		break;
+	case LINK_JUMPPAD:
+		s = "LINK_JUMPAD";
+		break;
+	case LINK_WATER:
+		s = "LINK_WATER";
+		break;
+	case LINK_WATERJUMP:
+		s = "LINK_WATERJUMP";
+		break;
+	case LINK_LADDER:
+		s = "LINK_LADDER";
+		break;
+	case LINK_JUMP:
+		s = "LINK_JUMP";
+		break;
+	case LINK_INVALID:
+	{
+		gi.positioned_sound(vec3_origin, g_edicts, CHAN_AUTO, gi.soundindex("misc/talk1.wav"), 1, ATTN_NONE, 0);
+		s = "LINK_INVALID";
+	}break;
+	default:
+		s = "UNKNOWN";
+		break;
+	}  /* MetalGod END*/
+
+
 
 	return s;
 }
@@ -169,7 +217,7 @@ qboolean AI_AddLink(int n1, int n2, int linkType)
 		return false;
 
 	//add the link
-	if (pLinks[n1].numLinks > NODES_MAX_PLINKS)
+	if (pLinks[n1].numLinks > NODES_MAX_PLINKS - 1)	 /* MetalGod the range is 0 to 15 added -1 to prevent a potential buffer overrun*/
 	{
 		//		G_Printf("MaxPlinks Reached! node:%i numPlinks:%i\n", n1, pLinks[n1].numLinks);
 		return false;
@@ -362,7 +410,9 @@ int AI_GravityBoxStep(vec3_t origin, float scale, vec3_t destvec, vec3_t neworig
 		for (; v1[2] < origin[2] + AI_JUMPABLE_HEIGHT; v1[2] += scale, v2[2] += scale)
 		{
 			//gi.dprintf("hi\n");
-			trace = gi.trace(v1, mins, maxs, v2, LINKS_PASSENT, MASK_NODESOLID | MASK_AISOLID);
+			/*		MetalGod equivalent nested operands
+			trace = gi.trace(v1, mins, maxs, v2, LINKS_PASSENT, MASK_NODESOLID | MASK_AISOLID);	 */
+			trace = gi.trace(v1, mins, maxs, v2, LINKS_PASSENT, MASK_AISOLID);	/* MetalGod END */
 			if (!trace.startsolid && trace.fraction == 1.0)
 			{
 				VectorCopy(v2, neworigin);
@@ -749,12 +799,12 @@ int AI_IsLadderLink(int n1, int n2)
 		eorg[j] = nodes[n2].origin[j] - nodes[n1].origin[j];
 	eorg[2] = 0; //ignore height
 
-	
+
 	xzdist = VectorLength(eorg);
 
 	if (xzdist < 0)
 		xzdist = -xzdist;
-	
+
 
 	//if both are ladder nodes
 	if (nodes[n1].flags & NODEFLAGS_LADDER && nodes[n2].flags & NODEFLAGS_LADDER)

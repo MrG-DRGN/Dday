@@ -1,4 +1,4 @@
-/*       D-Day: Normandy by Vipersoft
+﻿/*       D-Day: Normandy by Vipersoft
  ************************************
  *   $Source: /usr/local/cvsroot/dday/src/p_classes.c,v $
  *   $Revision: 1.10 $
@@ -26,7 +26,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 #include "g_local.h"
-#include "p_classes.h"
+/* #include "p_classes.h" MetalGod  unused! */
 
 // g_classes.c
 // D-Day: Normandy Player Classes
@@ -62,11 +62,11 @@ void Load_Weapon(edict_t* ent, gitem_t* item)
 			ent->client->mags[1].hmg_rnd = ammo_item->quantity;
 		else if (item->position == LOC_ROCKET)
 			ent->client->mags[1].antitank_rnd = ammo_item->quantity;
-		else if ((item->position == LOC_RIFLE))
+		else if (item->position == LOC_RIFLE)						/* MetalGod eliminated extra parentheses */
 			ent->client->mags[1].rifle_rnd = ammo_item->quantity;
-		else if ((item->position == LOC_SNIPER))
+		else if (item->position == LOC_SNIPER)						/* MetalGod eliminated extra parentheses */
 			ent->client->mags[1].sniper_rnd = ammo_item->quantity;
-		else if ((item->position == LOC_SHOTGUN))
+		else if (item->position == LOC_SHOTGUN)						/* MetalGod eliminated extra parentheses */
 			ent->client->mags[1].shotgun_rnd = ammo_item->quantity;
 		else if (item->position == LOC_SUBMACHINEGUN2)
 			ent->client->mags[1].submg2_rnd = ammo_item->quantity;
@@ -139,11 +139,11 @@ void Give_Class_Weapon(edict_t* ent)
 	client->pers.inventory[ITEM_INDEX(item)] = 1;
 
 	// faf rifle-only code  //ddaylife
-	if ((mauser_only->value == 1) && !(client->resp.mos == MEDIC))
+	if ((mauser_only->value == 1) && (client->resp.mos != MEDIC))/* MetalGod simplified */
 	{
 		item = FindTeamItem(team_list[1]->teamid, LOC_RIFLE);
 	}
-	else if ((sniper_only->value == 1) && !(client->resp.mos == MEDIC))
+	else if ((sniper_only->value == 1) && (client->resp.mos != MEDIC))	/* MetalGod simplified */
 	{
 		item = FindTeamItem(team_list[(client->resp.team_on->index)]->teamid, LOC_SNIPER);
 	}
@@ -155,7 +155,7 @@ void Give_Class_Weapon(edict_t* ent)
 	else
 		item = FindItem(client->resp.team_on->mos[client->resp.mos]->weapon1);
 
-	
+
 
 	if (!item) { //pbowens: prevents from crashing the game
 		safe_cprintf(ent, PRINT_HIGH, "weapon1 item not found!\n");
@@ -215,9 +215,9 @@ void Give_Class_Ammo(edict_t* ent)
 
 	if (ent->client->resp.team_on->mos[ent->client->resp.mos]->ammo1)
 	{
-		if ((mauser_only->value == 1) && !(ent->client->resp.mos == MEDIC))
+		if ((mauser_only->value == 1) && (ent->client->resp.mos != MEDIC)) /* MetalGod simplified */
 			item = FindTeamItem(team_list[1]->teamid, LOC_RIFLE);
-		else if ((sniper_only->value == 1) && !(ent->client->resp.mos == MEDIC))
+		else if ((sniper_only->value == 1) && (ent->client->resp.mos != MEDIC)) /* MetalGod simplified */
 			item = FindTeamItem(team_list[(ent->client->resp.team_on->index)]->teamid, LOC_SNIPER);
 		else
 			item = FindItem(ent->client->resp.team_on->mos[ent->client->resp.mos]->weapon1);
@@ -233,10 +233,10 @@ void Give_Class_Ammo(edict_t* ent)
 		Add_Ammo(ent, item2, ent->client->resp.team_on->mos[ent->client->resp.mos]->ammo2);
 	}
 }
-
+/*	 MetalGod unused
 void Show_Mos(edict_t* ent)
 {
-	/*	int i;
+		int i;
 
 		if(!ent->client->resp.team_on || !ent->client->resp.mos)
 		{
@@ -255,8 +255,8 @@ void Show_Mos(edict_t* ent)
 				ent->client->resp.team_on->mos[i]->name,
 				ent->client->resp.team_on->mos[i]->available);
 			}
-		} */
-}
+		}
+}	*/
 
 void InitMOS_List(TeamS_t* team, SMos_t* mos_list)
 {

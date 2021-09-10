@@ -1,4 +1,4 @@
-/*       D-Day: Normandy by Vipersoft
+﻿/*       D-Day: Normandy by Vipersoft
  ************************************
  *   $Source: /usr/local/cvsroot/dday/src/q_shared.c,v $
  *   $Revision: 1.6 $
@@ -280,7 +280,7 @@ LerpAngle
 
 ===============
 */
-float LerpAngle(float a2, float a1, float frac)
+float LerpAngle(float a1, float a2, float frac)
 {
 	if (a1 - a2 > 180)
 		a1 -= 360;
@@ -307,10 +307,10 @@ float	anglemod(float a)
 int BoxOnPlaneSide2(vec3_t emins, vec3_t emaxs, struct cplane_s* p)
 {
 	int		i;
-	vec3_t	corners[2] = {0};
+	vec3_t	corners[2] = { 0 };
 	float	dist1, dist2;
 	int		sides;
-	
+
 
 	for (i = 0; i < 3; i++)
 	{
@@ -1039,7 +1039,8 @@ char* va(char* format, ...)
 	static char		string[1024];
 
 	va_start(argptr, format);
-	vsprintf(string, format, argptr);
+	//	vsprintf (string, format, argptr);
+	Q_vsnprintf(string, sizeof(string), format, argptr);	/* MetalGod added Knightmare's- buffer overflow fix	 */
 	va_end(argptr);
 
 	return string;
@@ -1047,7 +1048,7 @@ char* va(char* format, ...)
 
 /* MetalGod Fix COM_Parse buffer overflow. TY QW
 char	com_token[MAX_TOKEN_CHARS];
-*/ 
+*/
 static char     com_token[4][MAX_TOKEN_CHARS];
 static int      com_tokidx;
 /*
@@ -1076,9 +1077,9 @@ char* COM_Parse(const char** data_p)
 
 	// skip whitespace
 skipwhite:
-	while ((c = *data) <= ' ') 
+	while ((c = *data) <= ' ')
 	{
-		if (c == 0) 
+		if (c == 0)
 		{
 			*data_p = NULL;
 			return s;
@@ -1095,11 +1096,11 @@ skipwhite:
 	}
 
 	// skip /* */ comments
-	if (c == '/' && data[1] == '*') 
+	if (c == '/' && data[1] == '*')
 	{
 		data += 2;
 		while (*data) {
-			if (data[0] == '*' && data[1] == '/') 
+			if (data[0] == '*' && data[1] == '/')
 			{
 				data += 2;
 				break;
@@ -1117,11 +1118,11 @@ skipwhite:
 		{
 			c = *data++;
 
-			if (c == '\"' || !c) 
+			if (c == '\"' || !c)
 			{
 				goto finish;
 			}
-			
+
 			if (len < MAX_TOKEN_CHARS - 1) {
 				s[len++] = c;
 			}
@@ -1130,7 +1131,7 @@ skipwhite:
 
 	// parse a regular word
 	do {
-		if (len < MAX_TOKEN_CHARS - 1) 
+		if (len < MAX_TOKEN_CHARS - 1)
 		{
 			s[len++] = c;
 		}
@@ -1167,63 +1168,157 @@ void Com_PageInMemory(byte* buffer, int size)
 
 ============================================================================
 */
+/* MetalGod START */
 
-// FIXME: replace all Q_stricmp with Q_strcasecmp
-int Q_stricmp(char* s1, char* s2)
+// fast "C" macros
+#define Q_isupper(c)    ((c) >= 'A' && (c) <= 'Z')
+#define Q_islower(c)    ((c) >= 'a' && (c) <= 'z')
+#define Q_isdigit(c)    ((c) >= '0' && (c) <= '9')
+#define Q_isalpha(c)    (Q_isupper(c) || Q_islower(c))
+#define Q_isalnum(c)    (Q_isalpha(c) || Q_isdigit(c))
+#define Q_isprint(c)    ((c) >= 32 && (c) < 127)
+#define Q_isgraph(c)    ((c) > 32 && (c) < 127)
+#define Q_isspace(c)    (c == ' ' || c == '\f' || c == '\n' || \
+                         c == '\r' || c == '\t' || c == '\v')
+
+static inline int Q_tolower(int c)
 {
-#if defined(WIN32)
-	return _stricmp(s1, s2);
-#else
-	return strcasecmp(s1, s2);
-#endif
+	if (Q_isupper(c)) {
+		c += ('a' - 'A');
+	}
+	return c;
 }
 
-int Q_strncasecmp(char* s1, char* s2, int n)
+/** Case independent string compare.
+ If s1 is contained within s2 then return 0, they are "equal".
+ else return the lexicographic difference between them.
+*/
+int Q_stricmp(const char* s1, const char* s2)
 {
-	int		c1, c2;
+	const unsigned char
+		* uc1 = (const unsigned char*)s1,
+		* uc2 = (const unsigned char*)s2;
 
-	do
+	while (Q_tolower(*uc1) == Q_tolower(*uc2++))
+		if (*uc1++ == '\0')
+			return (0);
+	return (Q_tolower(*uc1) - Q_tolower(*--uc2));
+}
+
+int Q_strnicmp(const char* s1, const char* s2, size_t count)
+{
+	if (count == 0)
+		return 0;
+	else
 	{
-		c1 = *s1++;
-		c2 = *s2++;
-
-		if (!n--)
-			return 0;		// strings are equal until end point
-
-		if (c1 != c2)
+		while (count-- != 0 && Q_tolower(*s1) == Q_tolower(*s2))
 		{
-			if (c1 >= 'a' && c1 <= 'z')
-				c1 -= ('a' - 'A');
-			if (c2 >= 'a' && c2 <= 'z')
-				c2 -= ('a' - 'A');
-			if (c1 != c2)
-				return -1;		// strings not equal
+			if (count == 0 || *s1 == '\0' || *s2 == '\0')
+				break;
+			s1++;
+			s2++;
 		}
-	} while (c1);
 
-	return 0;		// strings are equal
+		return Q_tolower(*(unsigned char*)s1) - Q_tolower(*(unsigned char*)s2);
+	}
 }
-
-int Q_strcasecmp(char* s1, char* s2)
+void		debug_printf(char* fmt, ...);
+size_t Q_strncpyz(char* dst, size_t dstSize, const char* src)
 {
-	return Q_strncasecmp(s1, s2, 99999);
+	char* d = dst;
+	const char* s = src;
+	size_t        decSize = dstSize;
+
+	if (!dst || !src || dstSize < 1) {
+		debug_printf("Bad arguments passed to %s\n", __func__);
+		return 0;
+	}
+
+	while (--decSize && *s)
+		*d++ = *s++;
+	*d = 0;
+
+	if (decSize == 0)    // Unsufficent room in dst, return count + length of remaining src
+		return (s - src - 1 + strlen(s));
+	else
+		return (s - src - 1);    // returned count excludes NULL terminator
 }
 
-   static char	bigbuffer[0x8000];	/* MetalGod */
+
+size_t Q_strncatz(char* dst, size_t dstSize, const char* src)
+{
+	char* d = dst;
+	const char* s = src;
+	size_t        decSize = dstSize;
+	size_t        dLen;
+
+	if (!dst || !src || dstSize < 1) {
+		debug_printf("Bad arguments passed to %s\n", __func__);
+		return 0;
+	}
+
+	while (--decSize && *d)
+		d++;
+	dLen = d - dst;
+
+	if (decSize == 0)
+		return (dLen + strlen(s));
+
+	if (decSize > 0) {
+		while (--decSize && *s)
+			*d++ = *s++;
+
+		*d = 0;
+	}
+
+	return (dLen + (s - src));    // returned count excludes NULL terminator
+}
+
+static char	bigbuffer[0x10000];  //QW// For Com_sprintf
+
+/**
+ Safer, uses large buffer
+ The big buffer allows us to safely dump
+ its contents to the log if the resulting format string
+ exceeds the size expected by the calling function.
+ This way we can see if this was a bug or possibly
+ malicious input.
+
 void Com_sprintf(char* dest, int size, char* fmt, ...)
 {
 	int		len;
 	va_list		argptr;
-	
 
 	va_start(argptr, fmt);
-	/*vsprintf (bigbuffer,fmt,argptr);MrG{DRGN} use vsnprintf */
-	len = vsnprintf(bigbuffer, sizeof(bigbuffer), fmt, argptr);
+	len = Q_vsnprintf(bigbuffer, sizeof bigbuffer, fmt, argptr);
 	va_end(argptr);
-	if (len >= size)
+	if (len < size)
+		Q_strncpyz(dest, (size_t)size - 1, bigbuffer);
+	else
+	{
+		Com_Printf("ERROR! %s: destination buffer overflow of len %i, size %i\n"
+			"Input was: %s\n", __func__, len, size, bigbuffer);
+	}
+}  */
+
+void Com_sprintf(char* dest, int size, char* fmt, ...)
+{
+	int		len;
+	va_list		argptr;
+
+	va_start(argptr, fmt);
+	//	len = vsprintf (bigbuffer, fmt, argptr);
+	len = Q_vsnprintf(bigbuffer, sizeof(bigbuffer), fmt, argptr);	// Knightmare- buffer overflow fix
+	va_end(argptr);
+	if (len < 0)
+		Com_Printf("Com_sprintf: overflow in temp buffer of size %i\n", sizeof(bigbuffer));
+	else if (len >= size)
 		Com_Printf("Com_sprintf: overflow of %i in %i\n", len, size);
 	strncpy(dest, bigbuffer, size - 1);
+	dest[size - 1] = 0;	// Knightmare- null terminate
 }
+
+/* MetalGod END */
 
 /*
 =====================================================================

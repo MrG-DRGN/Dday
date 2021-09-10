@@ -1,4 +1,4 @@
-/*       D-Day: Normandy by Vipersoft
+﻿/*       D-Day: Normandy by Vipersoft
  ************************************
  *   $Source: /usr/local/cvsroot/dday/src/g_combat.c,v $
  *   $Revision: 1.53 $
@@ -145,7 +145,10 @@ void Killed(edict_t* targ, edict_t* inflictor, edict_t* attacker, int damage, ve
 		targ->die(targ, inflictor, attacker, damage, point);
 		return;
 	}
-
+	if (NULL == targ)   /* MetalGod Safety check */
+	{
+		return;
+	}
 	/*	if ((targ->svflags & SVF_MONSTER) && (targ->deadflag != DEAD_DEAD))
 		{
 			targ->touch = NULL;
@@ -227,10 +230,12 @@ void Killed(edict_t* targ, edict_t* inflictor, edict_t* attacker, int damage, ve
 
 				if (targ->client)
 					//targ->client->resp.plus_minus--;
+				{/* MetalGod explicitbraces for clarity */
 					if (attacker->ai)
 						targ->client->resp.stat_bot_minus++;
 					else
 						targ->client->resp.stat_human_minus++;
+				}
 			}
 			targ->client->resp.team_on->losses++;
 
@@ -286,8 +291,9 @@ SpawnDamage
 */
 void SpawnDamage(int type, vec3_t origin, vec3_t normal, int damage)
 {
+	/* MetalGod this doesn't do shit
 	if (damage > 255)
-		damage = 255;
+		damage = 255; */
 	gi.WriteByte(svc_temp_entity);
 	gi.WriteByte(type);
 	//	gi.WriteByte (damage);
@@ -328,14 +334,6 @@ void M_ReactToDamage(edict_t* targ, edict_t* attacker)
 
 	if (attacker == targ || attacker == targ->enemy)
 		return;
-
-	/*	MetalGod fix for one possible server crash
-		dead monsters, like misc_deadsoldier, don't have AI functions, but 
-		M_ReactToDamage might still be called on them
-	*/
-    if (targ->svflags & SVF_DEADMONSTER)
-        return;
-
 
 	// if we are a good guy monster and our attacker is a player
 	// or another good guy, do not get mad at them
@@ -411,9 +409,9 @@ qboolean In_Vector_Range(vec3_t point, vec3_t origin,
 
 	VectorSubtract(point, origin, temp);
 
-	if ((abs(temp[0]) > x_range)) return false;
-	if ((abs(temp[1]) > y_range)) return false;
-	if ((abs(temp[2]) > z_range)) return false;
+	if ((fabs(temp[0]) > x_range)) return false; /*MetalGOd changedthese to fabs from abs, given they're all floats */
+	if ((fabs(temp[1]) > y_range)) return false;
+	if ((fabs(temp[2]) > z_range)) return false;
 	return true;
 }
 
@@ -812,7 +810,7 @@ void T_Damage(edict_t* targ, edict_t* inflictor, edict_t* attacker, vec3_t dir, 
 	//END JABOT
 
 	wound_location = die_time = 0;
-	height = abs(targ->mins[2]) + targ->maxs[2];
+	height = fabs(targ->mins[2]) + targ->maxs[2];/* MetalGod Changed to fabs, given these are floats */
 
 	if (targ->client && ((mod == MOD_PISTOL) ||
 		(mod == MOD_SHOTGUN) ||
@@ -1025,7 +1023,7 @@ void T_Damage(edict_t* targ, edict_t* inflictor, edict_t* attacker, vec3_t dir, 
 			if (targ->client)
 			{
 				if (targ->client->pers.inventory[ITEM_INDEX(FindItem("Helmet"))] //if they got helmet
-					&& (!(targ->client->pers.weapon && !stricmp(targ->client->pers.weapon->pickup_name, "Fists") && targ->client->aim))
+					&& (!(targ->client->pers.weapon && !Q_stricmp(targ->client->pers.weapon->pickup_name, "Fists") && targ->client->aim))
 					)
 				{
 					srand(rand());
@@ -1523,7 +1521,7 @@ void SprayBlood(edict_t* self, vec3_t point, vec3_t angle, int damage, int mod)
 	case MOD_SNIPER:
 		speed = 1600;//800;
 		break;/*
-	case 69:  MetalGod Magic number 69, What  is it? I can't find it. 
+	case 69:  MetalGod Magic number 69, What  is it? I can't find it.
 		speed = 2000; */
 	default:
 		speed = 1600;//500;

@@ -1,4 +1,4 @@
-/*       D-Day: Normandy by Vipersoft
+﻿/*       D-Day: Normandy by Vipersoft
  ************************************
  *   $Source: /usr/local/cvsroot/dday/src/g_turret.c,v $
  *   $Revision: 1.5 $
@@ -173,7 +173,8 @@ void explo_think(edict_t* ent)
 	if (ent->s.frame > -1)
 	{
 		ent->s.frame++;
-		if (ent->s.frame % 2 == 3)
+		/* 	if (ent->s.frame % 2 == 3)MetalGod this always evaluates to false! */
+		if (ent->s.frame % 2 == 0)/* fix */
 			ent->s.skinnum++;
 		if (ent->s.frame == 14)
 		{
@@ -560,12 +561,19 @@ void turret_breach_die(edict_t* self, edict_t* inflictor, edict_t* attacker, int
 
 	t = NULL;
 
+	/* MetalGod Sanity check*/
+	if (!self || !inflictor || !attacker)
+	{
+		return;
+	}
+	/* MetalGod */
+
 	if (self->owner)
 	{
 		if (self->owner->solid == SOLID_NOT)
 		{
 			turret_off(self->owner);
-			//crash			T_Damage (self->owner, attacker, attacker, vec3_origin, self->owner->s.origin, vec3_origin, 300, 0, DAMAGE_NO_PROTECTION, MOD_R_SPLASH);
+			T_Damage(self->owner, attacker, attacker, vec3_origin, self->owner->s.origin, vec3_origin, 300, 0, DAMAGE_NO_PROTECTION, MOD_R_SPLASH);
 		}
 		else
 			turret_off(self->owner);
@@ -779,7 +787,7 @@ void turret_off(edict_t* self)
 }
 
 qboolean FindTarget(edict_t* self);
- /* MetalGod unused! 
+/* MetalGod unused!
 void turret_driver_think(edict_t* self)
 {
 	vec3_t	target;

@@ -1,4 +1,4 @@
-/*       D-Day: Normandy by Vipersoft
+﻿/*       D-Day: Normandy by Vipersoft
  ************************************
  *   $Source: /usr/local/cvsroot/dday/src/g_ents.c,v $
  *   $Revision: 1.8 $
@@ -52,9 +52,16 @@ int Last_Team_Winner = 99;
 //delay is the time to win before the game is won
 
 /////////////////////
+/*			MetalGod no longer used, apparently!
 void trigger_enough_troops_use(edict_t* self, edict_t* other, edict_t* activator)
 {
 	int i;
+	MetalGod sanity check
+	if (!self || !activator)
+	{
+		return;
+	}
+	// MetalGod End
 
 	gi.dprintf("trigger_enough_troops_use called\n");
 
@@ -127,7 +134,7 @@ void SP_trigger_enough_troops(edict_t* self)
 	self->who_touched = gi.TagMalloc((sizeof(edict_t) * MAX_TEAM_MATES), TAG_LEVEL);
 	self->use = trigger_enough_troops_use;
 }
-
+   MetalGod END */
 void SP_info_Mission_Results(edict_t* ent)
 {
 	//put next map info here.
@@ -152,7 +159,7 @@ void target_objective_use(edict_t* self, edict_t* other, edict_t* activator)
 
 	if (team_list[self->obj_owner] == NULL)/* MetalGod check to see if it's NULL, before doing anything else or risk dereferencing */
 		return;
-	
+
 	team_list[self->obj_owner]->score -= self->dmg;
 
 	safe_bprintf(PRINT_HIGH, "%s has captured an objective point for team %s!\n", activator->client->pers.netname, team_list[self->obj_owner]->teamname);
@@ -496,7 +503,7 @@ void LoadBotChat(int teamnum, char* teamid)
 void SP_info_team_start(edict_t* ent)
 {
 	int i, k;
-	char* temp_var; /* MetalGod to avoid caclulation in sizeof! */
+	char* temp_var; /* MetalGod to avoid calculation in sizeof! */
 	i = ent->obj_owner;
 
 	//mapper set fullbright to 1 in info_team_start
@@ -586,7 +593,7 @@ void SP_info_team_start(edict_t* ent)
 	if (ent->style == 2)
 		team_list[i]->kills_and_points = true;
 
-	if (!stricmp(team_list[i]->teamid, "usm"))
+	if (!Q_stricmp(team_list[i]->teamid, "usm"))
 	{
 		strcpy(team_list[i]->teamid, "usa");
 		strcpy(team_list[i]->playermodel, "usa");
@@ -605,7 +612,7 @@ void SP_info_team_start(edict_t* ent)
 		team_list[i]->nextmap = level.mapname;
 
 	//make it so if allies win dday5 it goes to dday1
-	if (!stricmp(level.mapname, "dday5"))
+	if (!Q_stricmp(level.mapname, "dday5"))
 	{
 		team_list[0]->nextmap = "dday1";
 	}
@@ -677,7 +684,7 @@ void SP_info_team_start(edict_t* ent)
 
 	G_FreeEdict(ent);	//clean up entity now that it's not needed.
 }
-
+/*	 MetalGod unused
 void SP_info_Max_MOS(edict_t* ent)
 {
-}
+} */

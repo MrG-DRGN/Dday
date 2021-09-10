@@ -1,4 +1,4 @@
-/*
+﻿/*
 Copyright (C) 1997-2001 Id Software, Inc.
 
 This program is free software; you can redistribute it and/or
@@ -20,7 +20,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "../g_local.h"
 #include "ai_local.h"
-#include "stddef.h"
+/* MetalGod included in q_shared.h
+#include "stddef.h" */
 int AI_ClosestNodeToSpotx(vec3_t origin);
 int AI_ClosestNodeToSpot(vec3_t origin, edict_t* passent, qboolean visible);
 
@@ -69,7 +70,7 @@ void Set_Up_CampSpots_For_Ents(void)
 		allset = false;
 		for (tm = 0; tm < 2; tm++)
 		{
-			nearest_distance = 999999999.0F;/* MetalGod 99999999999 was excesive and overflows a float! Made explicit float */
+			nearest_distance = 99999999999.0F;/* MetalGod Made explicit float */
 			obj_camp = -1;
 			if (allset)
 				break;
@@ -106,7 +107,7 @@ void Set_Up_CampSpots_For_Ents(void)
 				}
 				if (obj_camp > -1)
 				{
-					camp_spots[obj_camp].type = CAMP_OBJECTIVE;
+					camp_spots[obj_camp].type = (qboolean)CAMP_OBJECTIVE;
 
 					if (e->classnameb == OBJECTIVE_VIP || e->classnameb == FUNC_EXPLOSIVE_OBJECTIVE || e->classnameb == FUNC_TRAIN)
 						allset = true;
@@ -192,12 +193,14 @@ void AI_SetUpMoveWander(edict_t* ent)
 // AI_ResetWeights
 // Init bot weights from bot-class weights.
 //==========================================
+
+/* MetalGod Husk of a function commented out
 void AI_ResetWeights(edict_t* ent)
 {
 	//restore defaults from bot persistant
 //	memset(ent->ai->status.inventoryWeights, 0, sizeof (ent->ai->status.inventoryWeights));
 //	memcpy(ent->ai->status.inventoryWeights, ent->ai->pers.inventoryWeights, sizeof(ent->ai->pers.inventoryWeights));
-}
+}	  */
 
 //==========================================
 // AI_ResetNavigation
@@ -297,7 +300,7 @@ int Closest_CMP_to_Ent(edict_t* self, edict_t* obj)
 	vec3_t distv;
 	int obj_camp = -1;
 
-	nearest_distance = 999999999.0F; /* MetalGod 99999999999 was excesive and overflows a float! Made explicit float */
+	nearest_distance = 99999999999.0F;/* MetalGod Made explicit float */
 	for (j = 0; j < total_camp_spots; j++)
 	{
 		if (!camp_spots[j].type)
@@ -516,7 +519,7 @@ void AI_PickLongRangeGoal(edict_t* self)
 	// select camping spot
 	if (!self->ai->objective)
 	{
-		nearest_distance = 999999999.0F; /* MetalGod 9999999999 was excesive and overflows a float! Made explicit float */
+		nearest_distance = 9999999999.0F; /* MetalGod Made explicit float */
 		randseed = (int)rand() % total_camp_spots;
 
 		//hacky stuff: if ai->camp_targ == -2, that means they want to find another camp spot,
@@ -841,7 +844,8 @@ void AI_CategorizePosition(edict_t* ent)
 	ent->is_ladder = AI_IsLadder(ent->s.origin, ent->s.angles, ent->mins, ent->maxs, ent);
 
 	M_CatagorizePosition(ent);
-	if (ent->waterlevel > 2 || ent->waterlevel && !stepping) {
+	if (ent->waterlevel > 2 || (ent->waterlevel && !stepping))  /* MetalGod parentheses for clarity */
+	{
 		ent->is_swim = true;
 		ent->is_step = false;
 		return;
@@ -900,7 +904,9 @@ void ParseBotChat(char* text, edict_t* attacker)
 				Com_sprintf(infobuf, sizeof(infobuf), "%s", attacker->client->pers.netname);
 				//infobuf = attacker->client->pers.netname;
 
-				strcpy(pbuf, infobuf);
+				/* MetalGod destination size checking function
+				strcpy(pbuf, infobuf);	  */
+				Q_strncatz(pbuf, sizeof(pbuf), infobuf);
 				pbuf = SeekBufEnd(pbuf);
 				p += 2;
 				continue;
@@ -912,7 +918,7 @@ void ParseBotChat(char* text, edict_t* attacker)
 	*pbuf = 0;
 
 	strncpy(text, buf, 150);
-		text[150] = 0; // in case it's 150
+	text[150] = 0; // in case it's 150
 }
 
 float infrontdegree(edict_t* self, edict_t* other);
@@ -937,7 +943,7 @@ void AI_Think(edict_t* self)
 	edict_t* teammatedodge = NULL;
 	float dist;
 
-	if (!self->ai)	//jabot092(2)
+	if (NULL == self->ai)	//jabot092(2)  /* MetalGod prefer like this */
 		return;
 
 	if (self->ai->chatdelay)
@@ -1387,12 +1393,16 @@ void AI_Think(edict_t* self)
 			{
 				if ((int)rand() % 2 == 1)
 				{
-					strcpy(soundfile, va("%s/shout/move%i.wav", self->client->resp.team_on->teamid, 1 + (int)rand() % 2));
+					/* MetalGod destination size checking function
+					strcpy(soundfile, va("%s/shout/move%i.wav", self->client->resp.team_on->teamid, 1 + (int)rand() % 2));	 */
+					Q_strncpyz(soundfile, sizeof(soundfile), va("%s/shout/move%i.wav", self->client->resp.team_on->teamid, 1 + (int)rand() % 2));
 					Cmd_Wave_f(self, 4);
 				}
 				else
 				{
-					strcpy(soundfile, va("%s/shout/attack%i.wav", self->client->resp.team_on->teamid, 1 + (int)rand() % 2));
+					/* MetalGod destination size checking function
+					strcpy(soundfile, va("%s/shout/attack%i.wav", self->client->resp.team_on->teamid, 1 + (int)rand() % 2));  */
+					Q_strncpyz(soundfile, sizeof(soundfile), va("%s/shout/attack%i.wav", self->client->resp.team_on->teamid, 1 + (int)rand() % 2));
 					Cmd_Wave_f(self, 3);
 				}
 				gi.sound(self, CHAN_VOICE, gi.soundindex(soundfile), 1, ATTN_NORM, 0);
@@ -1407,7 +1417,10 @@ void AI_Think(edict_t* self)
 			if (rand() % 3 == 1)
 			{
 				//if ((int)rand()%2 == 1)
-				strcpy(soundfile, va("%s/shout/cease%i.wav", self->client->resp.team_on->teamid, 1 + (int)rand() % 2));
+				/* MetalGod destination size checking function
+				strcpy(soundfile, va("%s/shout/cease%i.wav", self->client->resp.team_on->teamid, 1 + (int)rand() % 2));	  */
+				Q_strncpyz(soundfile, sizeof(soundfile), va("%s/shout/cease%i.wav", self->client->resp.team_on->teamid, 1 + (int)rand() % 2));
+
 				gi.sound(self, CHAN_VOICE, gi.soundindex(soundfile), 1, ATTN_NORM, 0);
 				level.last_bot_shout_time = level.time;
 				Cmd_Wave_f(self, 2);
@@ -1420,7 +1433,9 @@ void AI_Think(edict_t* self)
 		else if (self->health < 100 && level.framenum % 100 == 1 && (int)rand() % 5 == 1 && self->client && self->client->resp.mos && self->client->resp.mos != MEDIC)
 		{
 			//gi.dprintf("MEDIC\n");
-			strcpy(soundfile, va("%s/shout/medic.wav", self->client->resp.team_on->teamid));
+			/* MetalGod destination size checking function
+			strcpy(soundfile, va("%s/shout/medic.wav", self->client->resp.team_on->teamid));  */
+			Q_strncpyz(soundfile, sizeof(soundfile), va("%s/shout/medic.wav", self->client->resp.team_on->teamid));
 			gi.sound(self, CHAN_VOICE, gi.soundindex(soundfile), 1, ATTN_NORM, 0);
 			level.last_bot_shout_time = level.time;
 			Cmd_Wave_f(self, 0);
@@ -1436,7 +1451,9 @@ void AI_Think(edict_t* self)
 				/* MetalGod hides previous local declaration
 				char soundfile[50];
 				*/
-				strcpy(soundfile, va("%s/shout/sniper%i.wav", self->client->resp.team_on->teamid, 1 + (int)rand() % 2));
+				/* MetalGod destination size checking function
+				strcpy(soundfile, va("%s/shout/sniper%i.wav", self->client->resp.team_on->teamid, 1 + (int)rand() % 2));  */
+				Q_strncpyz(soundfile, sizeof(soundfile), va("%s/shout/sniper%i.wav", self->client->resp.team_on->teamid, 1 + (int)rand() % 2));
 				gi.sound(self, CHAN_VOICE, gi.soundindex(soundfile), 1, ATTN_NORM, 0);
 				level.last_bot_shout_time = level.time;
 				Cmd_Wave_f(self, 4);
@@ -1451,9 +1468,14 @@ void AI_Think(edict_t* self)
 		if (level.framenum % 600 == 300 && rand() % 10 == 1)
 		{
 			if ((int)rand() % 4 > 1)
-				strcpy(soundfile, va("%s/shout/funny%i.wav", self->client->resp.team_on->teamid, 1 + (int)rand() % 3));
+
+				/* MetalGod destination size checking function
+				strcpy(soundfile, va("%s/shout/funny%i.wav", self->client->resp.team_on->teamid, 1 + (int)rand() % 3));	  */
+				Q_strncpyz(soundfile, sizeof(soundfile), va("%s/shout/funny%i.wav", self->client->resp.team_on->teamid, 1 + (int)rand() % 3));
 			else
-				strcpy(soundfile, va("%s/shout/smoke1.wav", self->client->resp.team_on->teamid));
+				/* MetalGod destination size checking function
+				strcpy(soundfile, va("%s/shout/smoke1.wav", self->client->resp.team_on->teamid)); */
+				Q_strncpyz(soundfile, sizeof(soundfile), va("%s/shout/smoke1.wav", self->client->resp.team_on->teamid));
 			gi.sound(self, CHAN_VOICE, gi.soundindex(soundfile), 1, ATTN_NORM, 0);
 
 			//sndfixcheck

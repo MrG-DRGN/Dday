@@ -1,4 +1,4 @@
-/*       D-Day: Normandy by Vipersoft
+﻿/*       D-Day: Normandy by Vipersoft
  ************************************
  *   $Source: /usr/local/cvsroot/dday/src/g_local.h,v $
  *   $Revision: 1.34 $
@@ -46,7 +46,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // the "gameversion" client command will print this plus compile date
 #define	GAMEVERSION	"dday"
 //#define DEVVERSION	"4.1"
-#define DEVVERSION "5.0"//faf
+#define DEVVERSION "5.5 Metal!nfy"//faf
 //#define	DEBUG		1
 
 // protocol bytes that can be directly added to messages
@@ -805,11 +805,12 @@ extern	gitem_t	itemlist[];
 #ifndef USER_EXCLUDE_FUNCTIONS
 
 byte		is_silenced;
-
+/*	MetalGod Function Prototypes for functions that no longer exists.
 void Feed_Ammo(edict_t* ent);
 void Fire_Arty(edict_t* battary, edict_t* ent);
 void Cmd_Artillery_f(edict_t* ent);
 void Cmd_Airstrike_f(edict_t* ent);
+*/
 //
 // g_cmds.c
 //
@@ -837,9 +838,10 @@ void Think_Weapon(edict_t* ent);
 
 // CCH: new prototype for function called when airstrike arrives
 
+/*	MetalGod Function Prototype for a function that no longer exists.
 void Think_Airstrike(edict_t* ent);
-
-// KMM: prototype for artillery
+ */
+ // KMM: prototype for artillery
 
 void Think_Arty(edict_t* ent);
 
@@ -852,8 +854,9 @@ int PowerArmorType(edict_t* ent);
 gitem_t* GetItemByIndex(int index);
 qboolean Add_Ammo(edict_t* ent, gitem_t* item, int count);
 
+/*	MetalGod Function Prototype for a function that no longer exists.
 qboolean Add_Class_Ammo(gclient_t* client, gitem_t* item, int count);
-
+*/
 void Touch_Item(edict_t* ent, edict_t* other, cplane_t* plane, csurface_t* surf);
 
 //
@@ -871,7 +874,7 @@ void	G_SetMovedir(vec3_t angles, vec3_t movedir);
 
 void	G_InitEdict(edict_t* e);
 edict_t* G_Spawn(void);
-void	G_FreeEdict(edict_t* e);
+void	G_FreeEdict(edict_t* ed);/* MetalGod  wrongly prototyped as edict_t* e */
 
 void	G_TouchTriggers(edict_t* ent);
 void	G_TouchSolids(edict_t* ent);
@@ -882,7 +885,7 @@ float* tv(float x, float y, float z);
 char* vtos(vec3_t v);
 
 float vectoyaw(vec3_t vec);
-void vectoangles(vec3_t vec, vec3_t angles);
+void vectoangles(vec3_t value1, vec3_t angles);/* MetalGod  wrongly prototyped as vec3_t vec, vec3_t angles */
 
 qboolean WeighPlayer(edict_t* ent);
 void reinforcement_think(edict_t* ent);
@@ -1000,9 +1003,9 @@ void fire_bullet(edict_t* self, vec3_t start, vec3_t aimdir, int damage, int kic
 
 //void fire_shotgun (edict_t *self, vec3_t start, vec3_t aimdir, int damage, int kick, int hspread, int vspread, int count, int mod);
 
-void fire_blaster(edict_t* self, vec3_t start, vec3_t aimdir, int damage, int speed, int effect, qboolean hyper);
+void fire_blaster(edict_t* self, vec3_t start, vec3_t dir, int damage, int speed, int effect, qboolean hyper);/* MetalGod Prototype fix */
 
-void fire_tracer(edict_t* self, vec3_t start, vec3_t aimdir, int damage, int mod);
+void fire_tracer(edict_t* self, vec3_t start, vec3_t dir, int damage, int mod);/* MetalGod Prototype fix */
 //void fire_grenade (edict_t *self, vec3_t start, vec3_t aimdir, int damage, int speed, float timer, float damage_radius);
 void fire_grenade2(edict_t* self, vec3_t start, vec3_t aimdir, int damage, int speed, float time, float damage_radius, int team);
 //bcass start - TNT
@@ -1011,7 +1014,9 @@ void fire_tnt(edict_t* self, vec3_t start, vec3_t aimdir, int damage, int speed,
 void fire_rocket(edict_t* self, vec3_t start, vec3_t dir, int damage, int speed, float damage_radius, int radius_damage);
 
 void fire_shell(edict_t* self, vec3_t start, vec3_t dir, int damage, int speed, float damage_radius, int radius_damage);
+/*	MetalGod Function Prototype for a function that no longer exists.
 void fire_rifle(edict_t* self, vec3_t start, vec3_t aimdir, int damage, int kick, int hspread, int vspread, int mod, qboolean calcv);
+*/
 //void fire_bfg (edict_t *self, vec3_t start, vec3_t dir, int damage, int speed, float damage_radius);
 
 //
@@ -1028,7 +1033,7 @@ edict_t* PlayerTrail_LastSpot(void);
 // g_client.c
 //
 
-void respawn(edict_t* ent);
+void respawn(edict_t* self); /* MetalGod  wrongly prototyped as edict_t* self */
 void BeginIntermission(edict_t* targ);
 void PutClientInServer(edict_t* ent);
 void InitClientPersistant(gclient_t* client);
@@ -1057,7 +1062,7 @@ void ClientEndServerFrame(edict_t* ent);
 //
 // p_hud.c
 //
-void MoveClientToIntermission(edict_t* client);
+void MoveClientToIntermission(edict_t* ent);/* MetalGod fixed prototype */
 
 void G_SetStats(edict_t* ent);
 void ValidateSelectedItem(edict_t* ent);
@@ -1825,7 +1830,7 @@ int usm_index;
 #define WEAP_MELEE				9
 
 #define WEAP_NONE			0
-#define WEAP_TOTAL			10 /* 9  MetalGod this needs to be 10 to fit the array Septemember 21, 2020 */
+#define WEAP_TOTAL			9 /* MetalGod was 9, but we must include WEAP_NONE */
 //JABot[end]
 
 typedef enum
@@ -2074,7 +2079,8 @@ void SelectSpawnPoint(edict_t* ent, vec3_t origin, vec3_t angles);
 void ShowServerImg(edict_t* ent);
 void M_ChooseMOS(edict_t* ent);
 void AI_PickLongRangeGoal(edict_t* self);
-void AI_ResetWeights(edict_t* ent);
+/* MetalGod Function Prototype for a function that no longer exists.
+void AI_ResetWeights(edict_t* ent); */
 void AI_ResetNavigation(edict_t* ent);
 void Write_Player_Stats(edict_t* ent);
 void SetPlayerRating(edict_t* ent);
@@ -2085,7 +2091,7 @@ void VIP_think(edict_t* self);
 void Set_VIP_Defense_Bot(edict_t* ent);
 int Surface2(char* name);
 void Find_Mission_Start_Point(edict_t* ent, vec3_t origin, vec3_t angles);
-void SP_objective_flag(edict_t* ent);
+void SP_objective_flag(edict_t* ent);		 /* MetalGod mismatched prototype was edict_t* self, corrected to edict_t* ent */
 void briefcase_warn(edict_t* ent);//faf;  ctb code
 qboolean Pickup_Briefcase(edict_t* ent, edict_t* other);
 void Drop_Briefcase(edict_t* ent, gitem_t* item);

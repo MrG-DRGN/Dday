@@ -1,4 +1,4 @@
-/*       D-Day: Normandy by Vipersoft
+﻿/*       D-Day: Normandy by Vipersoft
  ************************************
  *   $Source: /usr/local/cvsroot/dday/src/g_spawn.c,v $
  *   $Revision: 1.14 $
@@ -54,7 +54,7 @@ void SP_item_ammo_napalm(edict_t* self)
 {
 	SpawnItem(self, FindItemByClassname("ammo_napalm"));
 }
-
+/*	    MetalGod Normal QUake 2 items, unused in dday.
 void SP_item_powerup_silencer(edict_t* self);
 
 void SP_item_powerup_breather(edict_t* self);
@@ -62,8 +62,8 @@ void SP_item_powerup_breather(edict_t* self);
 void SP_item_powerup_enviro(edict_t* self);
 void SP_item_powerup_adrenaline(edict_t* self);
 void SP_item_powerup_pack(edict_t* self);
-
-//end of added item spawn functions
+ */
+ //end of added item spawn functions
 
 void SP_item_health(edict_t* self);
 void SP_item_health_small(edict_t* self);
@@ -107,8 +107,8 @@ void SP_trigger_monsterjump(edict_t* ent);
 //added by kmm
 void SP_info_team_start(edict_t* ent);
 void SP_info_reinforcement_start(edict_t* ent);
-void SP_info_reinforcements_nearest(edict_t* ent);
-void SP_trigger_enough_troops(edict_t* ent);
+/*void SP_info_reinforcements_nearest(edict_t* ent); MetalGod prototype for missing function */
+/* void SP_trigger_enough_troops(edict_t* ent); MetalGod prototype for unused function */
 void SP_target_objective(edict_t* ent);
 //void SP_info_Max_MOS(edict_t *ent);
 //void SP_info_Skin(edict_t *ent);
@@ -464,7 +464,7 @@ char* ED_NewString(char* string)
 
 	for (i = 0; i < l; i++)
 	{
-		if (string[i] == '\\' && l-1  > i)/* Metalgod was i < l - 1 Changed to ensure the limit check was made before checking the value of i! */
+		if (string[i] == '\\' && l - 1 > i)/* MetalGod was i < l - 1 Changed to ensure the limit check was made before checking the value of i! */
 		{
 			i++;
 			if (string[i] == 'n')
@@ -509,18 +509,12 @@ void ED_ParseField(char* key, char* value, edict_t* ent)
 				*(char**)(b + f->ofs) = ED_NewString(value);
 				break;
 			case F_VECTOR:
-				/* MetalGod check the return of sscanf! */
-				if (sscanf(value, "%f %f %f", &vec[0], &vec[1], &vec[2])) {
-					((float*)(b + f->ofs))[0] = vec[0];
-					((float*)(b + f->ofs))[1] = vec[1];
-					((float*)(b + f->ofs))[2] = vec[2];
-				}
-				else {
-					((float*)(b + f->ofs))[0] = vec[0];	// if we get here, it's an error in the map
-					((float*)(b + f->ofs))[1] = vec[1]; // set all zeroes and log a warning.
-					((float*)(b + f->ofs))[2] = vec[2];
+				if (sscanf(value, "%f %f %f", &vec[0], &vec[1], &vec[2]) != 3) {
 					gi.dprintf("WARNING: Vector field incomplete in %s, map: %s, field: %s\n", __func__, level.mapname, f->name);
 				}
+				((float*)(b + f->ofs))[0] = vec[0];
+				((float*)(b + f->ofs))[1] = vec[1];
+				((float*)(b + f->ofs))[2] = vec[2];
 				break;
 			case F_INT:
 				*(int*)(b + f->ofs) = atoi(value);
@@ -719,7 +713,7 @@ void SpawnEntities(char* mapname, char* entities, char* spawnpoint)
 		if (!Q_stricmp(level.mapname, "command") && !Q_stricmp(ent->classname, "trigger_once") && !Q_stricmp(ent->model, "*27"))
 			ent->spawnflags &= ~SPAWNFLAG_NOT_HARD; */
 
-		// remove things (except the world) from different skill levels or deathmatch
+			// remove things (except the world) from different skill levels or deathmatch
 		if (ent != g_edicts)
 		{
 			if (deathmatch->value)
@@ -777,10 +771,10 @@ char* ReadEntFile(char* filename)
 {
 	FILE* fp;
 	char* filestring = NULL;
-	long int	i = 0;
+	int	i;
 	int			ch;
 
-	for(;;)/* MetalGod shut up compiler */
+	for (;;)/* MetalGod shut up compiler */
 	{
 		fp = fopen(filename, "r");
 		if (!fp) break;
@@ -871,9 +865,9 @@ void LoadCampFile(void)
 {
 	char	cmpfilename[MAX_QPATH] = "";
 	char* camplocs;
-	int		i; 	
-	vec3_t	loc = {0};
-	
+	int		i;
+	vec3_t	loc = { 0 };
+
 	if (level.botfiles)
 		sprintf(cmpfilename, "dday/navigation/%s.cmp", level.botfiles);
 	else
@@ -888,7 +882,7 @@ void LoadCampFile(void)
 	camplocs = ReadEntFile(cmpfilename);
 
 	if (camplocs)
-	{   
+	{
 		/* MetalGod moved to reduce variable scope */
 		int	c;
 		char* s, * f;
@@ -900,7 +894,7 @@ void LoadCampFile(void)
 		/* END */
 		//leave these dprints active they show up in the server init console section
 		gi.dprintf("%s.cmp Loaded\n", level.mapname);
-	   	
+
 		c = 0;
 		f = strdup(camplocs);
 		s = strtok(f, "\n");
@@ -964,7 +958,7 @@ void LoadCampFile(void)
 				camp_spots[c].type = CAMP_NORMAL;
 				c++;
 				total_camp_spots = c;
-			} 		
+			}
 			//
 		}
 	}
@@ -1019,7 +1013,7 @@ void SpawnEntities2(char* mapname, char* entities, char* spawnpoint)
 		if (!g_edicts)
 			return;
 		// parse the opening brace
-		com_token = COM_Parse(&entities);
+		com_token = COM_Parse((const char**)&entities);
 		if (!entities)
 			break;
 		if (com_token[0] != '{')

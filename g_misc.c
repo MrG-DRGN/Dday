@@ -1,4 +1,4 @@
-/*       D-Day: Normandy by Vipersoft
+﻿/*       D-Day: Normandy by Vipersoft
  ************************************
  *   $Source: /usr/local/cvsroot/dday/src/g_misc.c,v $
  *   $Revision: 1.26 $
@@ -122,7 +122,7 @@ void head_touch(edict_t* self, edict_t* other, cplane_t* plane, csurface_t* surf
 {
 	//	vec3_t	normal_angles, right;
 
-	float speed = abs(self->velocity[0]) + abs(self->velocity[1]) + abs(self->velocity[2]);
+	float speed = fabs(self->velocity[0]) + fabs(self->velocity[1]) + fabs(self->velocity[2]);/*MetalGod these are floats, so we used fabs, not abs */
 	if (speed > 350)
 		speed = 350;
 
@@ -141,7 +141,7 @@ void gib_touch(edict_t* self, edict_t* other, cplane_t* plane, csurface_t* surf)
 {
 	//	vec3_t	normal_angles, right;
 
-	float speed = abs(self->velocity[0]) + abs(self->velocity[1]) + abs(self->velocity[2]);
+	float speed = fabs(self->velocity[0]) + fabs(self->velocity[1]) + fabs(self->velocity[2]);/*MetalGod these are floats, so we used fabs, not abs */
 
 	if (speed > 350)
 		speed = 350;
@@ -657,7 +657,7 @@ void SP_point_combat(edict_t* self)
 	VectorSet(self->maxs, 8, 8, 16);
 	self->svflags = SVF_NOCLIENT;
 	gi.linkentity(self);
-};
+}/* MetalGod there was an extra ; here */
 
 /*QUAKED viewthing (0 .5 .8) (-8 -8 -8) (8 8 8)
 Just for the debugging level.  Don't use
@@ -690,7 +690,7 @@ Used as a positional target for spotlights, etc.
 void SP_info_null(edict_t* self)
 {
 	G_FreeEdict(self);
-};
+}/* MetalGod there was an extra ; here */
 
 /*QUAKED info_notnull (0 0.5 0) (-4 -4 -4) (4 4 4)
 Used as a positional target for lightning.
@@ -699,7 +699,7 @@ void SP_info_notnull(edict_t* self)
 {
 	VectorCopy(self->s.origin, self->absmin);
 	VectorCopy(self->s.origin, self->absmax);
-};
+}/* MetalGod there was an extra ; here */
 
 /*QUAKED light (0 1 0) (-8 -8 -8) (8 8 8) START_OFF
 Non-displayed light.
@@ -2509,12 +2509,17 @@ void teleporter_touch(edict_t* self, edict_t* other, cplane_t* plane, csurface_t
 	//faf:  this fixes getting stuck in other players when teleporting:
 	other->solid = SOLID_TRIGGER;
 	//it works just like when spawning
-
+	/*	  MetalGod always true, so let's just simplify it.
 	if (1)//other->client->resp.mos == SPECIAL || other->client->resp.team_on->chute == true)
 	{
 		other->client->landed = false;
 		Spawn_Chute(other);
 	}
+	*/
+
+	other->client->landed = false;
+	Spawn_Chute(other);
+	/* MetalGod END */
 
 	gi.linkentity(other);
 }
@@ -2956,7 +2961,7 @@ void spawn_toggle_use(edict_t* self, edict_t* other, edict_t* activator)
 		float temp_distance, nearest_distance;
 		vec3_t dist;
 
-		nearest_distance = 999999999.0F;/* MetalGod 9999999999 was excesive and overflows a float! Made explicit float */
+		nearest_distance = 9999999999.0F;/* MetalGod 9Made explicit float */
 		for (e = g_edicts; e < &g_edicts[globals.num_edicts]; e++)
 		{
 			if (!e->inuse)
